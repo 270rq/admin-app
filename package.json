@@ -1,0 +1,54 @@
+{
+  "name": "admin-app",
+  "productName": "admin-app",
+  "version": "1.0.0",
+  "description": "My Electron application description",
+  "main": ".vite/build/main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\""
+  },
+  "keywords": [],
+  "author": {
+    "name": "270rq",
+    "email": "chuprova-katya@list.ru"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@electron-forge/cli": "^7.2.0",
+    "@electron-forge/maker-deb": "^7.2.0",
+    "@electron-forge/maker-rpm": "^7.2.0",
+    "@electron-forge/maker-squirrel": "^7.2.0",
+    "@electron-forge/maker-zip": "^7.2.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.2.0",
+    "@electron-forge/plugin-vite": "^7.2.0",
+    "electron": "28.2.0"
+  },
+  "dependencies": {
+    "@adwatch/ymap": "^1.0.2",
+    "@ant-design/maps": "^1.0.8",
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@pbe/react-yandex-maps": "^1.2.5",
+    "@tanstack/react-table": "^8.11.7",
+    "antd": "^5.13.3",
+    "axios": "^1.6.7",
+    "date-fns": "^3.3.1",
+    "dayjs": "^1.11.10",
+    "electron-squirrel-startup": "^1.0.0",
+    "framer-motion": "^11.0.3",
+    "Layout": "^0.0.1",
+    "react": "^18.2.0",
+    "react-datepicker": "^5.0.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.0.1",
+    "react-router-dom": "^6.22.1",
+    "react-table": "^7.8.0",
+    "react-time-picker": "^6.6.0",
+    "table": "^6.8.1"
+  }
+}
