@@ -18,6 +18,12 @@ import StatusWeather from "./StatusWeather";
 
 const columns = [
   {
+    accessorKey: "region",
+    header: "Регион",
+    size: 100,
+    cell: EditableCell,
+  },
+  {
     accessorKey: "city",
     header: "Город",
     size: 100,
@@ -129,7 +135,21 @@ const TaskTable = ({ database }) => {
     getSortedRowModel: getSortedRowModel(),
     columnResizeMode: "onChange",
     meta:{
-      
+      updateData: (rowIndex, columnId, value) =>
+     {console.log(value); 
+      setData((prev) =>{
+        const newData = 
+        prev.map((row, index) =>
+          index === rowIndex
+            ? {
+                ...prev[rowIndex],
+                [columnId]: value,
+              }
+            : row
+        );
+      console.log(newData,prev);
+    return newData;}
+      )}
     },
   });
 

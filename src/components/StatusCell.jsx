@@ -4,21 +4,20 @@ import { WIND_DIRECTIONS } from "../data";
 
 const ArrowIcon = ({ windDirection, ...props }) => (
   <Box {...props}>
-    {windDirection === "С" && "↑"}
-    {windDirection === "СВ" && "↗"}
-    {windDirection === "В" && "→"}
-    {windDirection === "ЮВ" && "↘"}
-    {windDirection === "Ю" && "↓"}
-    {windDirection === "ЮЗ" && "↙"}
-    {windDirection === "З" && "←"}
-    {windDirection === "СЗ" && "↖"}
+    {windDirection === "N" && "↑N"}
+{windDirection ===     "NE" && "↗NE"}
+{windDirection ===     "E" && "→E"}
+{windDirection ===     "SE" && "↘SE"}
+{windDirection ===     "S" && "↓ЮГ"}
+{windDirection ===     "SW" && "↙SW"}
+{windDirection ===     "W" && "←W"}
+{windDirection ===     "NW" && "↖NW"}
   </Box>
 );
 
 const StatusCell = ({ getValue, row, column, table }) => {
-  const { name, direction } = getValue() || {};
+  const value = getValue() || {};
   const { updateData } = table.options.meta;
-  console.log(table.options);
   return (
     <Menu isLazy offset={[0, 0]} flip={false} autoSelect={false}>
       <MenuButton
@@ -27,10 +26,9 @@ const StatusCell = ({ getValue, row, column, table }) => {
         textAlign="left"
         p={1.5}
         bg="transparent"
-        color="gray.900"
+        color="gray.300"
       >
-        <ArrowIcon windDirection={direction} />
-        {name}
+        <ArrowIcon windDirection={value} />
       </MenuButton>
       <MenuList>
         <MenuItem onClick={() => updateData(row.index, column.id, null)}>
@@ -38,11 +36,10 @@ const StatusCell = ({ getValue, row, column, table }) => {
         </MenuItem>
         {WIND_DIRECTIONS.map((windDirection) => (
           <MenuItem
-            onClick={() => updateData(row.index, column.id, windDirection)}
+            onClick={() => updateData(row.index, column.id, windDirection.name)}
             key={windDirection.id}
           >
             <ArrowIcon windDirection={windDirection.name} />
-            {windDirection.name}
           </MenuItem>
         ))}
       </MenuList>

@@ -17,6 +17,12 @@ import TimeCell from "./TimeCell";
 
 const columns = [
   {
+    accessorKey: "region",
+    header: "Регион",
+    size: 100,
+    cell: EditableCell,
+  },
+  {
     accessorKey: "city",
     header: "Город",
     size: 100,
@@ -178,6 +184,7 @@ const TaskTableSun = ({ database }) => {
     }
   };
 
+  
   return (
     <Box overflowX="auto">
       <Button onClick = {saveDataSun} colorScheme="blue" mb={4}> Сохранить</Button>

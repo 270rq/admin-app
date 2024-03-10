@@ -34,8 +34,7 @@ const DateTimeCell = ({ getValue, row, column, table }) => {
   return (
     <DatePicker
       wrapperClassName="date-wrapper"
-      showTimeInput
-      dateTimeFormat="dd  MMM yyyy HH:mm:ss a"
+      dateFormat="dd  MMM yyyy HH:mm:ss"
       selected={date}
       onChange={(date) => updateData(row.index, column.id, date)}
       customInput={
@@ -47,3 +46,4 @@ const DateTimeCell = ({ getValue, row, column, table }) => {
   );
 };
 export default DateTimeCell;
+

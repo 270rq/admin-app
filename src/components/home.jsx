@@ -21,13 +21,19 @@ const items = [
 ];
 
 const Home = () => {
-  const [database, setData] = useState([]);
+  const [database, setData] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/api/database");
-        setData(response.database);
+        const response = await axios.get("http://localhost:3000/api/region");
+        const regionData = response.data.reduce((acc,region) => (
+          { ...acc,
+            [region.name]: region.city.map((city) => city.name)
+          }
+        ),{});
+        setData(regionData)
+        console.log(regionData);
       } catch (error) {
         console.error("Ошибка при получении данных:", error);
       }
