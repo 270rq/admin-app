@@ -11,7 +11,11 @@ const FormDisabledDemo = () => {
   const handleCheckboxChange = (e) => {
     setIsPeriodSelected(e.target.checked);
   };
-
+  const handleKeyDown = (e) => {
+    if (!(e.key >= '0' && e.key <= '9')) {
+      e.preventDefault();
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,13 +73,15 @@ const FormDisabledDemo = () => {
         Разрешить выбор периода
       </Checkbox>
     </Form.Item>
-        <Form.Item label="Количество частиц">
-  <InputNumber 
-    formatter={value => /^\d*$/.test(value) ? value : ''}
-    name="particles" 
-    rules={[{ type: 'number', message: 'Пожалуйста, введите число' }]}
-  />
-</Form.Item>
+   
+
+  return (
+    <Form>
+    <Form.Item label="Количество частиц" name="particles" rules={[{ type: 'number', message: 'Пожалуйста, введите число' }]}>
+        <InputNumber onKeyDown={handleKeyDown} />
+      </Form.Item>
+    </Form>
+  );
         <Form.Item label="Уровень цветения" wrapperCol={{ span: 16 }}> 
           <ColorPicker />
           <div style={{ textAlign: 'center', marginTop: 16 }}> 

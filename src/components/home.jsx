@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HomeOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { Row, Col } from 'antd';
-import TaskTable from './TaskTable';
+import MenuTable from './MenuTable';
 import TaskTableSun from './TaskTableSun';
 import axios from "axios";
 
@@ -45,7 +45,7 @@ const Home = () => {
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-        <TaskTable database={database} />
+        <MenuTable />
       </Col>
       <Col xs={24} sm={24} md={24} lg={24} xl={24}>
         <TaskTableSun database={database} />
