@@ -48,7 +48,6 @@ const Home = () => {
         <MenuTable />
       </Col>
       <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-        <TaskTableSun database={database} />
       </Col>
     </Row>
   );

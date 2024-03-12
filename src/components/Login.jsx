@@ -1,16 +1,13 @@
 import React from 'react';
 import { Button, Form, Input } from 'antd';
 
-const Login = ({ showMessage }) => {
-  const onFinish = (values) => {
-    console.log('Success:', values);
-    const { username, password } = values;
-    if (username === 'admin' && password === 'admin') {
-      showMessage('success', 'Успешный вход!');
-    } else {
-      showMessage('error', 'Неверные учетные данные');
+const Login = () => {
+  const registrationHandler = async (e) => {
+    try{
+      e.preventDefault()
+      const data = await
     }
-  };
+    catch(error){}  }
 
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
