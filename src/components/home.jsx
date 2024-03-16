@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { HomeOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { Row, Col } from 'antd';
 import MenuTable from './MenuTable';
-import TaskTableSun from './TaskTableSun';
 import axios from "axios";
 
 function getItem(label, key, icon, children, type) {

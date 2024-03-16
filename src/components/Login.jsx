@@ -2,46 +2,49 @@ import React from 'react';
 import { Button, Form, Input, message } from 'antd';
 import axios from 'axios';
 
-const registrationHandler = async (e, username, password, handleLoginSuccess, handleLoginError) => {
-  try {
-      if (e) {
-          e.preventDefault();
-      }
+const registrationHandler = async (username, password, handleLoginSuccess, handleLoginError) => {
+    try {
+        if (!username || !password) {
+            console.error('Please fill in both username and password fields');
+            handleLoginError();
+            return;
+        }
 
-      const response = await axios.post('http://localhost:3000/api/signIn', {
-          username,
-          password
-      });
+        const response = await axios.post('http://localhost:3000/api/auth/login', {
+            "email": username,
+            "password": password
+        });
+        const token = response.data;
+        handleLoginSuccess(token.access_token, token.id);
 
-      const token = response.data.token;
+        console.log('Login successful! Received token:', token);
 
-      console.log('Login successful! Received token:', token);
-      
-      handleLoginSuccess();
-      
-  } catch (error) {
-      console.error('An error occurred:', error);
-      
-      handleLoginError();
-  }
+    } catch (error) {
+        console.error('An error occurred:', error);
+
+        handleLoginError();
+    }
 };
 
-const Login = () => {
+const Login = (showButtons) => {
   const onFinish = (values) => {
+    console.log(values);
       handleFormSubmit(values.username, values.password);
   };
-
   const onFinishFailed = (errorInfo) => {
       console.log('Failed:', errorInfo);
   };
 
   const handleFormSubmit = (username, password) => {
-      registrationHandler(null, username, password, handleLoginSuccess, handleLoginError);
+      registrationHandler( username, password, handleLoginSuccess, handleLoginError);
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (token, id) => {
+    localStorage.setItem('id', id)
+    localStorage.setItem('token', token);
+    showButtons.showButtons();
     message.success('Вход выполнен успешно!');
-  };
+};
 
   const handleLoginError = () => {
     message.error('Ошибка входа. Пожалуйста, проверьте введенные данные.');

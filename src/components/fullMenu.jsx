@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, theme, message } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined, HomeOutlined, EnvironmentOutlined, LoginOutlined } from '@ant-design/icons';
 import DemoAreaMap from "./map";
@@ -8,9 +8,10 @@ import Login from "./Login";
 const { Header, Sider, Content } = Layout;
 
 const FullMenu = () => {
+  const [token, setToken] = useState("");
   const [collapsed, setCollapsed] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState('login'); // Изменено начальное значение
-
+  const [visibleButtons, setVisibleButtons] = useState(false)
   const {
     colorBgContainer,
     borderRadiusLG,
@@ -34,6 +35,11 @@ const FullMenu = () => {
     }
   ];
 
+  useEffect(() => {
+    const tokenFromData = localStorage.getItem('token') || '';
+    setToken(tokenFromData);
+  })  
+
   const toggleMenu = () => {
     setCollapsed(!collapsed);
   };
@@ -42,15 +48,9 @@ const FullMenu = () => {
     setSelectedMenuItem(key);
   };
 
-  const showMessage = (type, content) => {
-    if (type === 'success') {
-      message.success(content);
-      setSelectedMenuItem('home');
-    } else if (type === 'error') {
-      message.error(content);
-    }
-  };
-
+  const showButtons = ()=>{
+    setVisibleButtons(true);
+  }
   let contentComponent;
   switch (selectedMenuItem) {
     case 'home':
@@ -60,7 +60,7 @@ const FullMenu = () => {
       contentComponent = <DemoAreaMap />;
       break;
     case 'login':
-      contentComponent = <Login showMessage={showMessage}/>;
+      contentComponent = <Login showButtons={showButtons}/>;
       break;
     default:
       contentComponent = <Home />;
@@ -72,7 +72,7 @@ const FullMenu = () => {
         <div className="demo-logo-vertical" />
         <Menu theme="dark" mode="inline" selectedKeys={[selectedMenuItem]}>
           {items.map((item) => (
-            <Menu.Item key={item.key} icon={item.icon} onClick={() => handleMenuItemClick(item.key)}>
+            <Menu.Item key={item.key} className={item.key !== "login" && !visibleButtons && !token ? "Disable": ""} icon={item.icon} onClick={() => handleMenuItemClick(item.key)}>
               {item.label}
             </Menu.Item>
           ))}

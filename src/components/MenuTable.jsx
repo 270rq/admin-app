@@ -1,9 +1,25 @@
-import React, { useState, useRef } from 'react';
-import { Form, Input, InputNumber, Popconfirm, Table, Typography, Space,Button, DatePicker, Select} from 'antd';
-import { EditTwoTone,SearchOutlined, CheckCircleTwoTone, CloseCircleTwoTone} from '@ant-design/icons';
-const originData = [];
-const windDirectionOptions = ['Север', 'Северо-запад', 'Запад', 'Юго-запад', 'Юг', 'Юго-восток', 'Восток', 'Северо-восток'];
-const weatherDirectionOptions = ['Север', 'Северо-запад', 'Запад', 'Юго-запад', 'Юг', 'Юго-восток', 'Восток', 'Северо-восток'];
+import React, { useState, useRef, useEffect} from 'react';
+import { Form, Input, InputNumber, Popconfirm, Table, Typography, Space,Button, DatePicker, Select, message} from 'antd';
+import { EditTwoTone,SearchOutlined, CheckCircleTwoTone, CloseCircleTwoTone,DeleteTwoTone} from '@ant-design/icons';
+import axios from 'axios';
+import dayjs from 'dayjs';
+
+const windDirectionOptions = [{ value: 'Север', emoji: '⬆️' },
+{ value: 'Северо-запад', emoji: '↖️' },
+{ value: 'Запад', emoji: '⬅️' },
+{ value: 'Юго-запад', emoji: '↙️' },
+{ value: 'Юг', emoji: '⬇️' },
+{ value: 'Юго-восток', emoji: '↘️' },
+{ value: 'Восток', emoji: '➡️' },
+{ value: 'Северо-восток', emoji: '↗️' }];
+const weatherDirectionOptions = [
+  { value: 'Солнечно', emoji: '☀️' },
+  { value: 'Облачно', emoji: '☁️' },
+  { value: 'Дождь', emoji: '🌧️' },
+  { value: 'Снег', emoji: '❄️' },
+  { value: 'Туман', emoji: '🌫️' },
+  { value: 'Гроза', emoji: '⛈️' }
+];
 
 
 const EditableCell = ({
@@ -16,111 +32,127 @@ const EditableCell = ({
   children,
   ...restProps
 }) => {
-    const handleKeyDown = (e) => {
-        if (!(e.key >= '0' && e.key <= '9')) {
-          e.preventDefault();
-        }
-      };
-
-  const inputNode = inputType === 'number' ? <InputNumber  onKeyDown={handleKeyDown} /> 
-  :inputType ==="date" ? <DatePicker showTime format="YYYY-MM-DD HH:mm:ss"/>
-  :inputType ==="windType" ? (
-    <Select>
-      {windDirectionOptions.map((option) => (
-        <Select.Option key={option} value={option}>
-          {option}
-        </Select.Option>
-      ))}
-    </Select>
-  ) :inputType==="weatherType"?  (
-    <Select>
-      {weatherDirectionOptions.map((option) => (
-        <Select.Option key={option} value={option}>
-          {option}
-        </Select.Option>
-      ))}
-    </Select>
-  ) : <Input />;
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{
-            margin: 0,
-          }}
-          rules={[
-            {
-              required: true,
-              message: `Введите ${title}!`,
-            },
-            {
-                type: 'number',
-                message: `${title} должен быть числом`,
-              },
-          ]}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
+  const handleKeyDown = (e) => {
+    if (!((e.key >= '0' && e.key <= '9') || e.key === 'Backspace' || e.key === 'Delete')) {
+        e.preventDefault();
+    }
 };
+
+const inputNode = inputType === 'number' ? (
+  <InputNumber onKeyDown={handleKeyDown} />
+): inputType === "positiveNumber" ? (
+  <InputNumber onKeyDown={handleKeyDown} min={0}/>
+) 
+: inputType === "date" ? (
+  <DatePicker showTime format={"DD MM YYYY HH:mm:ss"} />
+) : inputType === "windType" ? (
+  <Select>
+    {windDirectionOptions.map((option) => (
+      <Select.Option key={option.value} value={option.value}>
+        {option.emoji} {option.value}
+      </Select.Option>
+    ))}
+  </Select>
+) : inputType === "weatherType" ? (
+  <Select>
+        {weatherDirectionOptions.map(option => (
+            <Select.Option key={option.value} value={option.value}>
+                {option.emoji} {option.value}
+            </Select.Option>
+        ))}
+    </Select>
+) : (
+  <Input />
+);
+
+return (
+  <td {...restProps}>
+    {editing ? (
+      <Form.Item
+        name={dataIndex}
+        style={{
+          margin: 0,
+        }}
+        rules={[
+          {
+            required: true,
+            message: `Введите ${title}!`,
+          },
+        ]}
+      >
+        {inputNode}
+      </Form.Item>
+    ) : (
+      children
+    )}
+  </td>
+);
+    };
 
 const MenuTable = () => {
     const searchInput = useRef(null);
   const [form] = Form.useForm();
-  const [data, setData] = useState(originData);
+  const [tableData, setTableData] = useState([]);
   const [editingKey, setEditingKey] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/api/menu', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+        try {
+            const response = await axios.get('http://localhost:3000/api/menu/getAll');
+            if (response.data) {
+              setTableData(response.data.map(item => ({ ...item, city: item.city.name, region:item.city.region.name, date: dayjs(item.date) })));
+            }
+        } catch (error) {
+            console.error(error);
         }
-
-        const fetchedData = await response.json();
-        
-        const menuData = fetchedData.map((data)=>{
-          return{
-            city:data.city.name,
-            date: new Date(data.date),
-            temperature: data.temperature,
-            humidity: data.humidity,
-            uv_index: data.uv,
-            wind_speed: data.windSpeed,
-            wind_type: data.windType,
-            pressure: data.pressure,
-            weather_type: data.weatherType,
-          }
-        })
-        console.log(menuData,fetchedData);
-        setData(menuData);
-      } catch (error) {
-        console.error('Error fetching data from backend:', error.message);
-      }
     };
 
     fetchData();
-  }, []);
+}, []);
 
-  const isEditing = (record) => record.key === editingKey;
+const isEditing = (record) => {
+  return record && record.id === editingKey;
+};
 
-  const edit = (record) => {
-    form.setFieldsValue({
-      ...record,
-    });
-    setEditingKey(record.key);
+    const edit = (record) => {
+      form.setFieldsValue({
+        ...record,
+      });
+      setEditingKey(record.id);
+    };
+    
+    const updateData = async (record) => {
+      try {
+          const id = localStorage.getItem('id');
+  
+          const response = await axios.put(`http://localhost:3000/api/menu/${record.id}`, { ...record, createrUserId: id });
+  
+          if (response.status === 200) {
+              console.log('Data updated successfully:', response.data);
+              message.success('Записи изменены успешно!');
+          } else {
+              throw new Error('Ошибка при обновлении данных');
+          }
+  
+      } catch (error) {
+          console.error('Error updating data:', error);
+          message.error('Не удалось изменить запись, возможно у вас недостаточно прав');
+      }
+  };
+
+    const handleDelete = async (record) => {
+      try {
+          const id = localStorage.getItem('id');
+  
+          const response = await axios.delete(`http://localhost:3000/api/menu/${record.id}`, {
+              data: { createrUserId: id }
+          });
+          console.log('Data deleted successfully:', response.data);
+          message.success('Запись успешно удалена!');
+      } catch (error) {
+          console.error('Error deleting data:', error);
+          message.error('Ошибка при удалении записи');
+      }
   };
 
   const cancel = () => {
@@ -129,32 +161,33 @@ const MenuTable = () => {
 
   const save = async (key) => {
     try {
-      const row = await form.validateFields();
-      const newData = [...data];
-      const index = newData.findIndex((item) => key === item.key);
-      if (index > -1) {
-        const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
-        setData(newData);
-        setEditingKey('');
-      } else {
-        newData.push(row);
-        setData(newData);
-        setEditingKey('');
-      }
+        const row = await form.validateFields();
+        const newData = [...tableData];
+        const index = newData.findIndex((item) => key === item.key);
+        if (index > -1) {
+            const item = newData[index];
+            newData.splice(index, 1, {
+                ...item,
+                ...row,
+            });
+            setTableData(newData);
+            setEditingKey('');
+        } else {
+            newData.push(row);
+            setTableData(newData);
+            setEditingKey('');
+        }
     } catch (errInfo) {
-      console.log('Валидация провалена:', errInfo);
+        console.log('Валидация провалена:', errInfo);
     }
-  };
+};
 
-  const handleAdd = () => {
-    const newData = [...data];
-    newData.unshift({});
-    setData(newData);
-  };
+const handleAdd = () => {
+  const newData = [{ key: 'new', id: 'new' }, ...tableData];
+  setTableData(newData);
+  setEditingKey('new');
+};
+  
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
       <div
@@ -212,22 +245,18 @@ const MenuTable = () => {
         setTimeout(() => searchInput.current?.select(), 100);
       }
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{
-            backgroundColor: '#ffc069',
-            padding: 0,
-          }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ''}
-        />
-      ) : (
-        text
-      ),
+   
   });
   const columns = [
+    {
+      title: 'Регион',
+      dataIndex: 'region',
+      width: '25%',
+      editable: true,
+      filters: [{}],
+      filterSearch: true,
+      ...getColumnSearchProps('region')
+    },
     {
       title: 'Город',
       dataIndex: 'city',
@@ -240,56 +269,55 @@ const MenuTable = () => {
     {
       title: 'Дата',
       dataIndex: 'date',
-      width: '15%',
+      width: '100%',
       editable: true,
       sorter: (a, b) => a.age - b.age,
     },
     {
       title: 't',
       dataIndex: 'temperature',
-      width: '40%',
+      width: '15%',
       editable: true,
       sorter: (a, b) => a.age - b.age,
     },
     {
       title: 'Влажность',
       dataIndex: 'humidity',
-      width: '40%',
+      width: '10%',
       editable: true,
       sorter: (a, b) => a.age - b.age,
     },
     { title: 'UV',
     dataIndex: 'uv',
-    width: '40%',
+    width: '10%',
     editable: true,
     render: (text, record) => {
-      console.log(record.uv);
       return <div>{record.uv}</div>;
     }},
     {
       title: 'Скорость ветра',
-      dataIndex: 'wind_speed',
-      width: '40%',
+      dataIndex: 'windSpeed',
+      width: '10%',
       editable: true,
       sorter: (a, b) => a.age - b.age,
     },
     {
       title: 'Направление ветра',
-      dataIndex: 'wind_type',
-      width: '40%',
+      dataIndex: 'windType',
+      width: '10%',
       editable: true,
       sorter: (a, b) => a.age - b.age,
     },
     {
       title: 'Давление',
       dataIndex: 'pressure',
-      width: '40%',
+      width: '10%',
         editable: true,
         sorter: (a, b) => a.age - b.age,
       },
       {
         title: 'Тип погоды',
-        dataIndex: 'weather_type',
+        dataIndex: 'weatherType',
         width: '40%',
         editable: true,
         sorter: (a, b) => a.age - b.age,
@@ -299,10 +327,11 @@ const MenuTable = () => {
       dataIndex: 'operation',
       render: (_, record) => {
         const editable = isEditing(record);
+        console.log(_,record);
         return editable ? (
           <span>
             <Typography.Link
-              onClick={() => save(record.key)}
+              onClick={() => save(record.id)}
               style={{
                 marginRight: 8,
               }}
@@ -310,7 +339,9 @@ const MenuTable = () => {
             <Popconfirm title="Хотите отменить?" onConfirm={cancel}><a><CloseCircleTwoTone /></a></Popconfirm>
           </span>
         ) : (
-          <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}><EditTwoTone /></Typography.Link>
+          <><Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}><EditTwoTone /></Typography.Link>
+          <Popconfirm title="Хотите удалить?" onConfirm={() => handleDelete(record)}><DeleteTwoTone /></Popconfirm></>
+          
         );
       },
     },
@@ -327,16 +358,16 @@ const MenuTable = () => {
         inputType: (() => {
           if (col.dataIndex === 'date') {
             return 'date';
-          } else if (col.dataIndex === 'city') {
+          } else if (col.dataIndex === 'city' || col.dataIndex === 'region') {
             return 'text';
-          } else if (col.dataIndex === 'temperature' || col.dataIndex === 'humidity' || col.dataIndex === 'pressure' || col.dataIndex === "uv" || col.dataIndex === "wind_speed") {
+          } else if (col.dataIndex === 'temperature') {
             return 'number';
-          } else if (col.dataIndex === 'wind_type') {
+          } else if (col.dataIndex === 'windType') {
             return 'windType';
-        } else if (col.dataIndex === 'weather_type') {
+        } else if (col.dataIndex === 'weatherType') {
             return 'weatherType';
           } else {
-            return 'text';
+            return 'positiveNumber';
           }
         })(),
         dataIndex: col.dataIndex,
@@ -362,7 +393,7 @@ const MenuTable = () => {
           },
         }}
         bordered
-        dataSource={data}
+        dataSource={tableData}
         columns={mergedColumns}
         rowClassName="editable-row"
         pagination={{

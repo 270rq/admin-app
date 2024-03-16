@@ -8,4 +8,3 @@ export const searchRegion = (region, array, setter) => {
         return cityObject.region.toLowerCase() === region.toLowerCase();
     }));
 };
-{region:["some"]}

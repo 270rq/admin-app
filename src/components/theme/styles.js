@@ -56,6 +56,9 @@ const styles = {
       bg: "#2eff31",
       opacity: 1,
     },
+    ".Disable":{
+      display: "none !important",
+    },
     "*:hover > .resizer": {
       opacity: 1,
     },
