@@ -7,42 +7,56 @@ const { RangePicker } = DatePicker;
 const FormDisabledDemo = () => {
   const [flowerOptions, setFlowerOptions] = useState([]);
   const [isPeriodSelected, setIsPeriodSelected] = useState(false);
+  const [selectedAllergen, setSelectedAllergen] = useState(null);
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
+  const [particles, setParticles] = useState(0);
+  const [colorLevel, setColorLevel] = useState("#ffffff");
 
   const handleCheckboxChange = (e) => {
     setIsPeriodSelected(e.target.checked);
   };
 
-  const handleKeyDown = (e) => {
-    if (!((e.key >= '0' && e.key <= '9') || e.key === 'Backspace' || e.key === 'Delete')) {
-        e.preventDefault();
+  const handleParticlesChange = (value) => {
+    setParticles(value);
+    updateColorLevel(value);
+  };
+
+  const updateColorLevel = (value) => {
+    let color = "#ffffff"; 
+
+    if (value >= 1 && value <= 10) {
+      color = "#00ff00"; 
+    } else if (value >= 11 && value <= 100) {
+      color = "#ffff00"; 
+    } else if (value >= 101 && value <= 1000) {
+      color = "#ffa500"; 
+    } else if (value >= 1001) {
+      color = "#ff0000"; 
     }
-};
 
-  const [particles, setParticles] = useState(0);
-const [colorLevel, setColorLevel] = useState("#ffffff");
+    setColorLevel(color);
+  };
 
+  const handleSave = () => {
+    const data = {
+      allergen: selectedAllergen,
+      period: selectedPeriod,
+      particles: particles,
+      colorLevel: colorLevel
+    };
 
-
-const handleParticlesChange = (value) => {
-  setParticles(value);
-
-  let color = "#ffffff"; // По умолчанию белый цвет
-
-  if (value >= 1 && value <= 10) {
-    color = "#00ff00"; // Зеленый цвет для значений от 1 до 10
-  } else if (value >= 11 && value <= 100) {
-    color = "#ffff00"; // Желтый цвет для значений от 11 до 100
-  } else if (value >= 101 && value <= 1000) {
-    color = "#ffa500"; // Оранжевый цвет для значений от 101 до 1000
-  } else if (value >= 1001) {
-    color = "#ff0000"; // Красный цвет для значений от 1001 и выше
-  }
-
-  setColorLevel(color);
-};
-
+    // Отправка данных на сервер
+    axios.post('http://localhost:3000/api/map', data)
+      .then((response) => {
+        console.log('Data saved successfully:', response.data);
+      })
+      .catch((error) => {
+        console.error('Error saving data:', error);
+      });
+  };
 
   useEffect(() => {
+    // Загрузка данных для аллергенов
     const fetchData = async () => {
       try {
         const response = await axios.get('http://localhost:3000/api/family');
@@ -83,28 +97,29 @@ const handleParticlesChange = (value) => {
           maxWidth: 600,
         }}
       >
-       <Form.Item label="Аллерген">
-  <Cascader
-    options={flowerOptions}
-    placeholder="Выберите аллерген"
-    changeOnSelect
-  />
-</Form.Item>
+        <Form.Item label="Аллерген">
+          <Cascader
+            options={flowerOptions}
+            placeholder="Выберите аллерген"
+            onChange={(value) => setSelectedAllergen(value)}
+            changeOnSelect
+          />
+        </Form.Item>
         <Form.Item label="Период цветения">
-          {isPeriodSelected ? <RangePicker disabled={!isPeriodSelected} /> : <DatePicker />}
+          {isPeriodSelected ? <RangePicker onChange={(value) => setSelectedPeriod(value)} disabled={!isPeriodSelected} /> : <DatePicker />}
           <Checkbox checked={isPeriodSelected} onChange={handleCheckboxChange}>
             Разрешить выбор периода
           </Checkbox>
         </Form.Item>
         <Form.Item label="Количество частиц" name="particles">
-    <InputNumber onChange={handleParticlesChange} onKeyDown={(event) => handleKeyDown(event)} />
-</Form.Item>
-<Form.Item label="Уровень цветения" wrapperCol={{ span: 16 }}>
-    <ColorPicker value={colorLevel} disabled />
-    <div style={{ textAlign: 'center', marginTop: 16 }}>
-        <Button disabled>Сохранить</Button>
-    </div>
-</Form.Item>
+          <InputNumber onChange={handleParticlesChange} />
+        </Form.Item>
+        <Form.Item label="Уровень цветения" wrapperCol={{ span: 16 }}>
+          <ColorPicker value={colorLevel} disabled />
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <Button onClick={handleSave}>Сохранить</Button>
+          </div>
+        </Form.Item>
       </Form>
     </div>
   );

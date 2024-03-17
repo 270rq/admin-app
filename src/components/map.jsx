@@ -1,24 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { YMaps, Map, ZoomControl, SearchControl, Placemark } from '@pbe/react-yandex-maps';
+import {message } from 'antd';
+import { YMaps, Map, ZoomControl, SearchControl, Placemark, TypeSelector } from '@pbe/react-yandex-maps';
 import FormDisabledDemo from './form';
 import axios from 'axios';
 
 const DemoAreaMap = () => {
   const [placemarks, setPlacemarks] = useState([]);
+  const [newPlacemarksCoordinates, setNewPlacemarksCoordinates] = useState([]);
+  const [formFilled, setFormFilled] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const requestBody = {
-          "day": "2024-03-13T09:27:00.487Z",
-          "flowerId": 1,
-          "x": 55.751574,
-          "y": 37.573856,
-          "lvl": 0
-        };
-
-        const response = await axios.post("http://localhost:3000/api/map/getAll", requestBody);
-        сonsole.log(response.data);
+        const response = await axios.post("http://localhost:3000/api/map/getAll");
+        console.log(response.data);
         setPlacemarks(response.data);
       } catch (error) {
         console.error('Error fetching data: ', error);
@@ -33,19 +28,50 @@ const DemoAreaMap = () => {
     zoom: 10, // Уровень масштабирования
   };
 
+  const [hoveredMarker, setHoveredMarker] = useState(null);
+
+  const handleMarkerMouseEnter = (index) => {
+    setHoveredMarker(index);
+  };
+
+  const handleMapContextMenu = (e) => {
+    if (formFilled) {
+      const coords = e.get('coords');
+      setNewPlacemarksCoordinates([...newPlacemarksCoordinates, coords]);
+    } else {
+      message.error("Внести данные в форму");
+    }
+  };
+
+  const handleFormSubmit = (isFilled) => {
+    setFormFilled(isFilled);
+  };
+
   return (
     <div style={{ display: 'flex' }}>
       <div style={{ flex: 1 }}>
-        <FormDisabledDemo />
+        <FormDisabledDemo onFormSubmit={handleFormSubmit} />
       </div>
       <div style={{ flex: 1, paddingLeft: '20px', position: "relative" }}>
         <YMaps query={{ apikey: "ed158a2d-97a9-49a1-8011-28555c611f7a" }}>
-          <Map state={mapState} width="100%" height="500px" options={{ suppressMapOpenBlock: true }}>
+          <Map state={mapState} width="100%" height="500px" options={{ suppressMapOpenBlock: true }} onContextMenu={handleMapContextMenu}>
             <ZoomControl options={{ float: 'right' }} />
             <SearchControl options={{ float: 'left' }} />
             {placemarks.map((placemark, index) => (
-              <Placemark key={index} geometry={{ coordinates: [placemark.x, placemark.y] }} />
+              <Placemark
+  key={index}
+  geometry={[placemark.x, placemark.y]}
+  properties={{
+    iconCaption: `${placemark.flower.name}\nЧисло частиц: ${placemark.lvl}`,
+    balloonContent: hoveredMarker === index ? <button onClick={() => setDeleteMarkerIndex(index)}>Удалить</button> : ''
+  }}
+  onClick={() => handleMarkerMouseEnter(index)}
+/>
             ))}
+            {newPlacemarksCoordinates.map((coords, index) => (
+              <Placemark key={index} geometry={coords} />
+            ))}
+            <TypeSelector options={{ float: "right" }} />
           </Map>
         </YMaps>
       </div>
