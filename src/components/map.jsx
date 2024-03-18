@@ -35,22 +35,22 @@ const DemoAreaMap = () => {
   };
 
   const handleMapContextMenu = (e) => {
-    if (formFilled) {
       const coords = e.get('coords');
       setNewPlacemarksCoordinates([...newPlacemarksCoordinates, coords]);
-    } else {
-      message.error("Внести данные в форму");
-    }
   };
 
   const handleFormSubmit = (isFilled) => {
+    console.log(isFilled);
     setFormFilled(isFilled);
   };
 
+const setDeleteMarkerIndex=  (index)=>{
+  console.log(index);
+}
   return (
     <div style={{ display: 'flex' }}>
       <div style={{ flex: 1 }}>
-        <FormDisabledDemo onFormSubmit={handleFormSubmit} />
+      <FormDisabledDemo onFormSubmit={handleFormSubmit} />
       </div>
       <div style={{ flex: 1, paddingLeft: '20px', position: "relative" }}>
         <YMaps query={{ apikey: "ed158a2d-97a9-49a1-8011-28555c611f7a" }}>

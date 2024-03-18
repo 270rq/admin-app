@@ -1,10 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Cascader, ColorPicker, DatePicker, Form, Checkbox, InputNumber } from 'antd';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import {
+  Button,
+  Cascader,
+  ColorPicker,
+  DatePicker,
+  Form,
+  Checkbox,
+  InputNumber,
+} from "antd";
+import axios from "axios";
 
 const { RangePicker } = DatePicker;
 
-const FormDisabledDemo = () => {
+const FormDisabledDemo = ({onFormSubmit}) => {
   const [flowerOptions, setFlowerOptions] = useState([]);
   const [isPeriodSelected, setIsPeriodSelected] = useState(false);
   const [selectedAllergen, setSelectedAllergen] = useState(null);
@@ -22,36 +30,31 @@ const FormDisabledDemo = () => {
   };
 
   const updateColorLevel = (value) => {
-    let color = "#ffffff"; 
+    let color = "#ffffff";
 
     if (value >= 1 && value <= 10) {
-      color = "#00ff00"; 
+      color = "#00ff00";
     } else if (value >= 11 && value <= 100) {
-      color = "#ffff00"; 
+      color = "#ffff00";
     } else if (value >= 101 && value <= 1000) {
-      color = "#ffa500"; 
+      color = "#ffa500";
     } else if (value >= 1001) {
-      color = "#ff0000"; 
+      color = "#ff0000";
     }
 
     setColorLevel(color);
   };
 
   const handleSave = () => {
-    const data = {
-      allergen: selectedAllergen,
-      period: selectedPeriod,
-      particles: particles,
-      colorLevel: colorLevel
-    };
-
     // Отправка данных на сервер
-    axios.post('http://localhost:3000/api/map', data)
+    axios
+      .post("http://localhost:3000/api/map", data)
       .then((response) => {
-        console.log('Data saved successfully:', response.data);
+        console.log("Data saved successfully:", response.data);
+        onFormSubmit(true); // Обновление состояния в родительском компоненте
       })
       .catch((error) => {
-        console.error('Error saving data:', error);
+        console.error("Error saving data:", error);
       });
   };
 
@@ -59,24 +62,24 @@ const FormDisabledDemo = () => {
     // Загрузка данных для аллергенов
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/family');
+        const response = await axios.get("http://localhost:3000/api/family");
         if (!response.data) {
-          throw new Error('Network response for family data was not valid');
+          throw new Error("Network response for family data was not valid");
         }
         const data = response.data;
 
-        const newFlowerOptions = data.map(family => ({
+        const newFlowerOptions = data.map((family) => ({
           value: family.name,
           label: family.name,
-          children: family.flower.map(flower => ({
+          children: family.flower.map((flower) => ({
             value: flower.name,
-            label: flower.name
-          }))
+            label: flower.name,
+          })),
         }));
 
         setFlowerOptions(newFlowerOptions);
       } catch (error) {
-        console.error('Error fetching data:', error.message);
+        console.error("Error fetching data:", error.message);
       }
     };
 
@@ -106,7 +109,14 @@ const FormDisabledDemo = () => {
           />
         </Form.Item>
         <Form.Item label="Период цветения">
-          {isPeriodSelected ? <RangePicker onChange={(value) => setSelectedPeriod(value)} disabled={!isPeriodSelected} /> : <DatePicker />}
+          {isPeriodSelected ? (
+            <RangePicker
+              onChange={(value) => setSelectedPeriod(value)}
+              disabled={!isPeriodSelected}
+            />
+          ) : (
+            <DatePicker />
+          )}
           <Checkbox checked={isPeriodSelected} onChange={handleCheckboxChange}>
             Разрешить выбор периода
           </Checkbox>
@@ -116,7 +126,7 @@ const FormDisabledDemo = () => {
         </Form.Item>
         <Form.Item label="Уровень цветения" wrapperCol={{ span: 16 }}>
           <ColorPicker value={colorLevel} disabled />
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <div style={{ textAlign: "center", marginTop: 16 }}>
             <Button onClick={handleSave}>Сохранить</Button>
           </div>
         </Form.Item>
