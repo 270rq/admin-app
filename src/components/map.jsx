@@ -16,7 +16,7 @@ const DemoAreaMap = () => {
         console.log(response.data);
         setPlacemarks(response.data);
       } catch (error) {
-        console.error('Error fetching data:  ', error);
+        console.error('Error fetching data: ', error);
       }
     };
 
@@ -36,6 +36,9 @@ const DemoAreaMap = () => {
 
   const handleMapContextMenu = (e) => {
       const coords = e.get('coords');
+      console.log(newPlacemarksCoordinates);
+      console.log([...newPlacemarksCoordinates, coords]);
+
       setNewPlacemarksCoordinates([...newPlacemarksCoordinates, coords]);
   };
 
@@ -43,9 +46,11 @@ const DemoAreaMap = () => {
     console.log(isFilled);
     setFormFilled(isFilled);
   };
-
-const setDeleteMarkerIndex=  (index)=>{
-  console.log(index);
+const setDeleteMarkerIndex=  (placemarkIndex)=>{
+  setNewPlacemarksCoordinates(newPlacemarksCoordinates.filter((_, index) => index !== placemarkIndex));
+}
+const deleteMarkerBD = ()=>{
+  // сюда надо предупреждение и удаление бд
 }
   return (
     <div style={{ display: 'flex' }}>
@@ -54,23 +59,20 @@ const setDeleteMarkerIndex=  (index)=>{
       </div>
       <div style={{ flex: 1, paddingLeft: '20px', position: "relative" }}>
         <YMaps query={{ apikey: "ed158a2d-97a9-49a1-8011-28555c611f7a" }}>
-          <Map state={mapState} width="100%" height="500px" options={{ suppressMapOpenBlock: true }} onContextMenu={handleMapContextMenu}>
+          <Map state={mapState} width="100%" height="500px" options={{ suppressMapOpenBlock: true }} onClick={handleMapContextMenu}>
             <ZoomControl options={{ float: 'right' }} />
             <SearchControl options={{ float: 'left' }} />
             {placemarks.map((placemark, index) => (
               <Placemark
   key={index}
   geometry={[placemark.x, placemark.y]}
-  properties={{
-    iconCaption: `${placemark.flower.name}\nЧисло частиц: ${placemark.lvl}`,
-    balloonContent: hoveredMarker === index ? <button onClick={() => setDeleteMarkerIndex(index)}>Удалить</button> : ''
-  }}
-  onClick={() => handleMarkerMouseEnter(index)}
+  onContextMenu={()=>deleteMarkerBD(index)}
 />
             ))}
             {newPlacemarksCoordinates.map((coords, index) => (
-              <Placemark key={index} geometry={coords} />
+              <Placemark id={index} key={index} geometry={coords}  onContextMenu={()=>setDeleteMarkerIndex(index)}/>
             ))}
+
             <TypeSelector options={{ float: "right" }} />
           </Map>
         </YMaps>
