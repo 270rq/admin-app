@@ -9,16 +9,18 @@ import {
   InputNumber,
 } from "antd";
 import axios from "axios";
+import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 
-const FormDisabledDemo = ({onFormSubmit}) => {
+const FormDisabledDemo = ({ onFormSubmit }) => {
   const [flowerOptions, setFlowerOptions] = useState([]);
   const [isPeriodSelected, setIsPeriodSelected] = useState(false);
   const [selectedAllergen, setSelectedAllergen] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [particles, setParticles] = useState(0);
   const [colorLevel, setColorLevel] = useState("#ffffff");
+  const [formData, setFormData] = useState({});
 
   const handleCheckboxChange = (e) => {
     setIsPeriodSelected(e.target.checked);
@@ -46,20 +48,28 @@ const FormDisabledDemo = ({onFormSubmit}) => {
   };
 
   const handleSave = () => {
+    const data = {
+      x: 56,
+      y: 56,
+      day: dayjs(selectedPeriod),
+      lvl:3,
+      flower: 2,
+      creater: 4
+    };
+
     // Отправка данных на сервер
     axios
-      .post("http://localhost:3000/api/map", data)
-      .then((response) => {
-        console.log("Data saved successfully:", response.data);
-        onFormSubmit(true); // Обновление состояния в родительском компоненте
-      })
-      .catch((error) => {
-        console.error("Error saving data:", error);
-      });
-  };
+    .post("http://localhost:3000/api/map", data)
+    .then((response) => {
+      console.log("Data saved successfully:", response.data);
+      onFormSubmit(true); // Обновление состояния в родительском компоненте
+    })
+    .catch((error) => {
+      console.error("Error saving data:", error);
+    });
+};
 
   useEffect(() => {
-    // Загрузка данных для аллергенов
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:3000/api/family");
@@ -86,6 +96,12 @@ const FormDisabledDemo = ({onFormSubmit}) => {
     fetchData();
   }, []);
 
+  const handleFormChange = (changedValues) => {
+    setFormData({
+      ...formData,
+      ...changedValues,
+    });
+  };
   return (
     <div>
       <Form
@@ -99,6 +115,7 @@ const FormDisabledDemo = ({onFormSubmit}) => {
         style={{
           maxWidth: 600,
         }}
+        onValuesChange={handleFormChange}
       >
         <Form.Item label="Аллерген">
           <Cascader
