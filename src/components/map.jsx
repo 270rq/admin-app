@@ -7,21 +7,8 @@ import axios from 'axios';
 const DemoAreaMap = () => {
   const [placemarks, setPlacemarks] = useState([]);
   const [newPlacemarksCoordinates, setNewPlacemarksCoordinates] = useState([]);
-  const [formFilled, setFormFilled] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.post("http://localhost:3000/api/map/getAll");
-        console.log(response.data);
-        setPlacemarks(response.data);
-      } catch (error) {
-        console.error('Error fetching data: ', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+ 
 
   const mapState = {
     center: [55.751574, 37.573856], // Центр Москвы
@@ -42,10 +29,25 @@ const DemoAreaMap = () => {
       setNewPlacemarksCoordinates([...newPlacemarksCoordinates, coords]);
   };
 
-  const handleFormSubmit = (isFilled) => {
-    console.log(isFilled);
-    setFormFilled(isFilled);
-  };
+  const handleFormSubmit = (data) => {
+    console.log(data);
+    if( newPlacemarksCoordinates.length <= 0 ){
+      console.log("Лох выбери где")
+    }
+    else {
+      axios
+        .post('http://localhost:3000/api/placemark', {
+          ...data,
+          markers: newPlacemarksCoordinates
+        })
+        .then((response) => {
+          console.log(response.data);
+          setPlacemarks([...placemarks, response.data]);
+    });
+  }}
+  const changeMarker = (marksData) => {
+    setPlacemarks(marksData);
+  }
 const setDeleteMarkerIndex=  (placemarkIndex)=>{
   setNewPlacemarksCoordinates(newPlacemarksCoordinates.filter((_, index) => index !== placemarkIndex));
 }
@@ -55,7 +57,7 @@ const deleteMarkerBD = ()=>{
   return (
     <div style={{ display: 'flex' }}>
       <div style={{ flex: 1 }}>
-      <FormDisabledDemo onFormSubmit={handleFormSubmit} />
+      <FormDisabledDemo onFormSubmit={handleFormSubmit} onFlowerChange={changeMarker} />
       </div>
       <div style={{ flex: 1, paddingLeft: '20px', position: "relative" }}>
         <YMaps query={{ apikey: "ed158a2d-97a9-49a1-8011-28555c611f7a" }}>

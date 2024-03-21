@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 
-const FormDisabledDemo = ({ onFormSubmit }) => {
+const FormDisabledDemo = ({ onFormSubmit, onFlowerChange }) => {
   const [flowerOptions, setFlowerOptions] = useState([]);
   const [isPeriodSelected, setIsPeriodSelected] = useState(false);
   const [selectedAllergen, setSelectedAllergen] = useState(null);
@@ -47,26 +47,9 @@ const FormDisabledDemo = ({ onFormSubmit }) => {
     setColorLevel(color);
   };
 
-  const handleSave = () => {
-    const data = {
-      x: 56,
-      y: 56,
-      day: dayjs(selectedPeriod),
-      lvl:3,
-      flower: 2,
-      creater: 4
-    };
-
-    // Отправка данных на сервер
-    axios
-    .post("http://localhost:3000/api/map", data)
-    .then((response) => {
-      console.log("Data saved successfully:", response.data);
-      onFormSubmit(true); // Обновление состояния в родительском компоненте
-    })
-    .catch((error) => {
-      console.error("Error saving data:", error);
-    });
+  const handleSave = (data) => {
+    onFormSubmit(data);
+   
 };
 
   useEffect(() => {
@@ -96,6 +79,9 @@ const FormDisabledDemo = ({ onFormSubmit }) => {
     fetchData();
   }, []);
 
+
+ 
+
   const handleFormChange = (changedValues) => {
     setFormData({
       ...formData,
@@ -115,9 +101,10 @@ const FormDisabledDemo = ({ onFormSubmit }) => {
         style={{
           maxWidth: 600,
         }}
+        onFinish={handleSave}
         onValuesChange={handleFormChange}
       >
-        <Form.Item label="Аллерген">
+        <Form.Item  label="Аллерген" name="TreeSelect" rules={[{ required: true, message: 'Пожалуйста, выберите аллерген!' }]}>
           <Cascader
             options={flowerOptions}
             placeholder="Выберите аллерген"
@@ -125,26 +112,26 @@ const FormDisabledDemo = ({ onFormSubmit }) => {
             changeOnSelect
           />
         </Form.Item>
-        <Form.Item label="Период цветения">
-          {isPeriodSelected ? (
+        {isPeriodSelected ? ( <Form.Item label="Период цветения" name="RangePicker"  rules={[{ required: true, message: 'Пожалуйста, выберите период цветения!' }]}>
+         
             <RangePicker
               onChange={(value) => setSelectedPeriod(value)}
               disabled={!isPeriodSelected}
-            />
-          ) : (
-            <DatePicker />
+            /> </Form.Item>
+          ) : (<Form.Item label="Период цветения" name="RangePicker"  rules={[{ required: true, message: 'Пожалуйста, выберите период цветения!' }]}>
+            <DatePicker /></Form.Item>
           )}
           <Checkbox checked={isPeriodSelected} onChange={handleCheckboxChange}>
             Разрешить выбор периода
           </Checkbox>
-        </Form.Item>
-        <Form.Item label="Количество частиц" name="particles">
+        
+        <Form.Item label="Количество частиц" name="particles" rules={[{ required: true, message: 'Пожалуйста, выберите количество частиц!' }]}>
           <InputNumber onChange={handleParticlesChange} />
         </Form.Item>
-        <Form.Item label="Уровень цветения" wrapperCol={{ span: 16 }}>
+        <Form.Item label="Уровень цветения" wrapperCol={{ span: 16 }} rules={[{ required: true, message: 'Пожалуйста, выберите уровень цветения!' }]}>
           <ColorPicker value={colorLevel} disabled />
           <div style={{ textAlign: "center", marginTop: 16 }}>
-            <Button onClick={handleSave}>Сохранить</Button>
+            <Button type="primary"  htmlType="submit">Сохранить</Button>
           </div>
         </Form.Item>
       </Form>
