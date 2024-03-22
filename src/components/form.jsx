@@ -78,10 +78,6 @@ const FormDisabledDemo = ({ onFormSubmit, onFlowerChange }) => {
 
     fetchData();
   }, []);
-
-
- 
-
   const handleFormChange = (changedValues) => {
     setFormData({
       ...formData,
