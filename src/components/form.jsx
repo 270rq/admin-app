@@ -9,7 +9,6 @@ import {
   InputNumber,
 } from "antd";
 import axios from "axios";
-import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 
@@ -48,9 +47,9 @@ const FormDisabledDemo = ({ onFormSubmit, onFlowerChange }) => {
   };
 
   const handleSave = (data) => {
-    onFormSubmit(data);
-   
-};
+    onFormSubmit({ ...data, x: coords.x, y: coords.y });
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -117,10 +116,6 @@ const FormDisabledDemo = ({ onFormSubmit, onFlowerChange }) => {
           ) : (<Form.Item label="Период цветения" name="RangePicker"  rules={[{ required: true, message: 'Пожалуйста, выберите период цветения!' }]}>
             <DatePicker /></Form.Item>
           )}
-          <Checkbox checked={isPeriodSelected} onChange={handleCheckboxChange}>
-            Разрешить выбор периода
-          </Checkbox>
-        
         <Form.Item label="Количество частиц" name="particles" rules={[{ required: true, message: 'Пожалуйста, выберите количество частиц!' }]}>
           <InputNumber onChange={handleParticlesChange} />
         </Form.Item>

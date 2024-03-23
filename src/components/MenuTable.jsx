@@ -127,6 +127,8 @@ const EditableCell = ({
     ) : inputType === "positiveNumber" ? (
       <InputNumber onKeyDown={handleKeyDown} min={0} />
     ) : inputType === "date" ? (
+      <DatePicker showTime format={"DD MM YYYY HH"} />
+    ) : inputType === "createdAt" ? (
       <DatePicker showTime format={"DD MM YYYY HH:mm:ss"} />
     ) : inputType === "windType" ? (
       <Select>
@@ -364,6 +366,14 @@ const MenuTable = () => {
   });
   const columns = [
     {
+      title: "Время создания",
+      dataIndex: "createdAt",
+      width: "100%",
+      editable: false,
+      sorter: (a, b) => a.age - b.age,
+      createdAt: new Date().toLocaleString(),
+    },
+    {
       title: "Регион",
       dataIndex: "region",
       width: "25%",
@@ -491,6 +501,8 @@ const MenuTable = () => {
         inputType: (() => {
           if (col.dataIndex === "date") {
             return "date";
+          }else if (col.dataIndex === 'createdAt'){
+            return 'createdAt';
           } else if (col.dataIndex === "city") {
             return "city";
           } else if (col.dataIndex === "region") {

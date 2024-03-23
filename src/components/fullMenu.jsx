@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Button, theme, message } from 'antd';
-import { MenuFoldOutlined, MenuUnfoldOutlined, HomeOutlined, EnvironmentOutlined, LoginOutlined } from '@ant-design/icons';
+import { Layout, Menu, Button, theme } from 'antd';
+import { MenuFoldOutlined, MenuUnfoldOutlined, HomeOutlined, EnvironmentOutlined, LoginOutlined, UserOutlined } from '@ant-design/icons';
 import DemoAreaMap from "./map";
 import Home from "./home";
 import Login from "./Login";
+import UserProfile from "./profile";
 
 const { Header, Sider, Content } = Layout;
 
 const FullMenu = () => {
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [collapsed, setCollapsed] = useState(false);
-  const [selectedMenuItem, setSelectedMenuItem] = useState('login'); // Изменено начальное значение
-  const [visibleButtons, setVisibleButtons] = useState(false)
+  const [selectedMenuItem, setSelectedMenuItem] = useState(token ? 'home' : 'login');
+  const [visibleButtons, setVisibleButtons] = useState(!!token);
+
   const {
     colorBgContainer,
     borderRadiusLG,
@@ -29,16 +31,11 @@ const FullMenu = () => {
       label: 'Карта',
     },
     {
-      key: 'login',
-      icon: <LoginOutlined />,
-      label: 'Вход',
+      key: token ? 'userProfile' : 'login',
+      icon: token ? <UserOutlined /> : <LoginOutlined />,
+      label: token ? 'Профиль' : 'Вход',
     }
   ];
-
-  useEffect(() => {
-    const tokenFromData = localStorage.getItem('token') || '';
-    setToken(tokenFromData);
-  })  
 
   const toggleMenu = () => {
     setCollapsed(!collapsed);
@@ -48,9 +45,17 @@ const FullMenu = () => {
     setSelectedMenuItem(key);
   };
 
-  const showButtons = ()=>{
+  const handleLogout = () => {
+    setToken('');
+    setSelectedMenuItem('login');
+    setVisibleButtons(false);
+    localStorage.removeItem('token');
+  };
+
+  const showButtons = () => {
     setVisibleButtons(true);
-  }
+  };
+
   let contentComponent;
   switch (selectedMenuItem) {
     case 'home':
@@ -60,7 +65,10 @@ const FullMenu = () => {
       contentComponent = <DemoAreaMap />;
       break;
     case 'login':
-      contentComponent = <Login showButtons={showButtons}/>;
+      contentComponent = <Login showButtons={showButtons} />;
+      break;
+    case 'userProfile':
+      contentComponent = <UserProfile username="Имя пользователя" handleLogout={handleLogout} />;
       break;
     default:
       contentComponent = <Home />;
@@ -72,7 +80,7 @@ const FullMenu = () => {
         <div className="demo-logo-vertical" />
         <Menu theme="dark" mode="inline" selectedKeys={[selectedMenuItem]}>
           {items.map((item) => (
-            <Menu.Item key={item.key} className={item.key !== "login" && !visibleButtons && !token ? "Disable": ""} icon={item.icon} onClick={() => handleMenuItemClick(item.key)}>
+            <Menu.Item key={item.key} className={item.key !== 'login' && !visibleButtons ? 'Disable' : ''} icon={item.icon} onClick={() => handleMenuItemClick(item.key)}>
               {item.label}
             </Menu.Item>
           ))}
@@ -86,6 +94,11 @@ const FullMenu = () => {
             onClick={toggleMenu}
             style={{ fontSize: '16px', width: 64, height: 64 }}
           />
+          {token && (
+            <Button type="text" onClick={handleLogout}>
+              Выйти
+            </Button>
+          )}
         </Header>
         <Content
           style={{

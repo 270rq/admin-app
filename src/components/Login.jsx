@@ -1,54 +1,70 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Form, Input, message } from 'antd';
 import axios from 'axios';
-
-const registrationHandler = async (username, password, handleLoginSuccess, handleLoginError) => {
-    try {
-        if (!username || !password) {
-            console.error('Please fill in both username and password fields');
-            handleLoginError();
-            return;
-        }
-
-        const response = await axios.post('http://localhost:3000/api/auth/login', {
-            "email": username,
-            "password": password
-        });
-        const token = response.data;
-        handleLoginSuccess(token.access_token, token.id);
-
-        console.log('Login successful! Received token:', token);
-
-    } catch (error) {
-        console.error('An error occurred:', error);
-
-        handleLoginError();
-    }
-};
+import UserProfile from './profile';
 
 const Login = (showButtons) => {
-  const onFinish = (values) => {
-    console.log(values);
-      handleFormSubmit(values.username, values.password);
-  };
-  const onFinishFailed = (errorInfo) => {
-      console.log('Failed:', errorInfo);
-  };
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [username, setUsername] = useState('');
 
-  const handleFormSubmit = (username, password) => {
-      registrationHandler( username, password, handleLoginSuccess, handleLoginError);
-  };
+    const onFinish = (values) => {
+        handleFormSubmit(values.username, values.password);
+    };
 
-  const handleLoginSuccess = (token, id) => {
-    localStorage.setItem('id', id)
-    localStorage.setItem('token', token);
-    showButtons.showButtons();
-    message.success('Вход выполнен успешно!');
-};
+    const onFinishFailed = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
 
-  const handleLoginError = () => {
-    message.error('Ошибка входа. Пожалуйста, проверьте введенные данные.');
-  };
+    const registrationHandler = async (username, password, handleLoginSuccess, handleLoginError) => {
+        try {
+            if (!username || !password) {
+                console.error('Please fill in both username and password fields');
+                handleLoginError();
+                return;
+            }
+
+            const response = await axios.post('http://localhost:3000/api/auth/login', {
+                "email": username,
+                "password": password
+            });
+            const token = response.data;
+            handleLoginSuccess(token.access_token, token.id);
+
+            console.log('Login successful! Received token:', token);
+
+        } catch (error) {
+            console.error('An error occurred:', error);
+
+            handleLoginError();
+        }
+    };
+
+    const handleFormSubmit = (username, password) => {
+        registrationHandler(username, password, handleLoginSuccess, handleLoginError);
+    };
+
+    const handleLoginSuccess = (token, id) => {
+        localStorage.setItem('id', id)
+        localStorage.setItem('token', token);
+        setUsername(username);
+        setLoggedIn(true);
+        message.success('Вход выполнен успешно!');
+    };
+
+    const handleLoginError = () => {
+        message.error('Ошибка входа. Пожалуйста, проверьте введенные данные.');
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('id');
+        localStorage.removeItem('token');
+        setLoggedIn(false);
+        setUsername('');
+    };
+
+    if (loggedIn) {
+        return <UserProfile username={username} handleLogout={handleLogout} />;
+    }
 
     return (
         <Form
