@@ -5,17 +5,16 @@ import {
   ColorPicker,
   DatePicker,
   Form,
-  App,
+  Checkbox,
   InputNumber,
 } from "antd";
 import axios from "axios";
 
 const { RangePicker } = DatePicker;
 
-const FormDisabledDemo = ({ onFormSubmit, onFlowerChange }) => {
+const FormDisabledDemo = ({ onFormSubmit, onFlowerChange, onDateChange }) => {
   const [flowerOptions, setFlowerOptions] = useState([]);
   const [isPeriodSelected, setIsPeriodSelected] = useState(false);
-  const [selectedAllergen, setSelectedAllergen] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [particles, setParticles] = useState(0);
   const [colorLevel, setColorLevel] = useState("#ffffff");
@@ -46,28 +45,11 @@ const FormDisabledDemo = ({ onFormSubmit, onFlowerChange }) => {
     setColorLevel(color);
   };
 
-  // Предположим, что это ваша функция getCoordinatesFromMap
-const getCoordinatesFromMap = () => {
-  // Ваш код для получения координат из карты
-  return { longitude: 0, latitude: 0 }; // Пример возврата объекта с координатами
-};
+  const handleSave = (data) => {
+    onFormSubmit({ ...data, x: coords.x, y: coords.y });
+  };
 
-const handleSave = () => {
-  const coordinates = getCoordinatesFromMap(); // Вызов функции getCoordinatesFromMap
-  const data = { ...formData, x: coordinates.longitude, y: coordinates.latitude };
 
-  axios.post('http://localhost:3000/api/map', data)
-    .then(response => {
-      if (App.message && App.message.success) {
-        App.message.success('Форма успешно сохранена!');
-      }
-    })
-    .catch(error => {
-      if (App.message && App.message.error) {
-        App.message.error('Ошибка при сохранении формы. Пожалуйста, попробуйте еще раз.');
-      }
-    });
-};
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -76,12 +58,11 @@ const handleSave = () => {
           throw new Error("Network response for family data was not valid");
         }
         const data = response.data;
-
         const newFlowerOptions = data.map((family) => ({
-          value: family.name,
+          value: family.id,
           label: family.name,
           children: family.flower.map((flower) => ({
-            value: flower.name,
+            value: flower.id,
             label: flower.name,
           })),
         }));
@@ -120,19 +101,13 @@ const handleSave = () => {
           <Cascader
             options={flowerOptions}
             placeholder="Выберите аллерген"
-            onChange={(value) => setSelectedAllergen(value)}
+            onChange={(value) => onFlowerChange(value)}
             changeOnSelect
           />
         </Form.Item>
-        {isPeriodSelected ? ( <Form.Item label="Период цветения" name="RangePicker"  rules={[{ required: true, message: 'Пожалуйста, выберите период цветения!' }]}>
-         
-            <RangePicker
-              onChange={(value) => setSelectedPeriod(value)}
-              disabled={!isPeriodSelected}
-            /> </Form.Item>
-          ) : (<Form.Item label="Период цветения" name="RangePicker"  rules={[{ required: true, message: 'Пожалуйста, выберите период цветения!' }]}>
-            <DatePicker /></Form.Item>
-          )}
+        <Form.Item label="Период цветения" name="RangePicker"  rules={[{ required: true, message: 'Пожалуйста, выберите период цветения!' }]}>
+            <DatePicker onChange={(value)=>onDateChange(value.format("YYYY-MM-DD"))} /></Form.Item>
+          
         <Form.Item label="Количество частиц" name="particles" rules={[{ required: true, message: 'Пожалуйста, выберите количество частиц!' }]}>
           <InputNumber onChange={handleParticlesChange} />
         </Form.Item>
