@@ -5,7 +5,7 @@ import {
   ColorPicker,
   DatePicker,
   Form,
-  Checkbox,
+  App,
   InputNumber,
 } from "antd";
 import axios from "axios";
@@ -46,11 +46,28 @@ const FormDisabledDemo = ({ onFormSubmit, onFlowerChange }) => {
     setColorLevel(color);
   };
 
-  const handleSave = (data) => {
-    onFormSubmit({ ...data, x: coords.x, y: coords.y });
-  };
+  // Предположим, что это ваша функция getCoordinatesFromMap
+const getCoordinatesFromMap = () => {
+  // Ваш код для получения координат из карты
+  return { longitude: 0, latitude: 0 }; // Пример возврата объекта с координатами
+};
 
+const handleSave = () => {
+  const coordinates = getCoordinatesFromMap(); // Вызов функции getCoordinatesFromMap
+  const data = { ...formData, x: coordinates.longitude, y: coordinates.latitude };
 
+  axios.post('http://localhost:3000/api/map', data)
+    .then(response => {
+      if (App.message && App.message.success) {
+        App.message.success('Форма успешно сохранена!');
+      }
+    })
+    .catch(error => {
+      if (App.message && App.message.error) {
+        App.message.error('Ошибка при сохранении формы. Пожалуйста, попробуйте еще раз.');
+      }
+    });
+};
   useEffect(() => {
     const fetchData = async () => {
       try {

@@ -13,12 +13,6 @@ const DemoAreaMap = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
 
-  const [hoveredMarker, setHoveredMarker] = useState(null);
-
-  const handleMarkerMouseEnter = (index) => {
-    setHoveredMarker(index);
-  };
-
   const handleMapContextMenu = (e) => {
     const coords = e.get('coords');
     setNewPlacemarksCoordinates([...newPlacemarksCoordinates, coords]);
@@ -47,8 +41,10 @@ const DemoAreaMap = () => {
   };
 
   const deleteMarkerBD = (placemark) => {
-    setMarkerToDelete(placemark);
-    showModal();
+    if (placemark) {
+      setMarkerToDelete(placemark);
+      showModal();
+    }
   };
 
   const showModal = () => {
@@ -56,17 +52,19 @@ const DemoAreaMap = () => {
   };
 
   const handleOk = () => {
-    axios
-      .delete(`http://localhost:3000/api/placemark/${markerToDelete.id}`)
-      .then(() => {
-        setPlacemarks(placemarks.filter((placemark) => placemark.id !== markerToDelete.id));
-        message.success('Метка успешно удалена');
-        setMarkerToDelete(null);
-      })
-      .catch((error) => {
-        message.error('Произошла ошибка при удалении метки');
-      });
-    setOpen(false);
+    if (markerToDelete) {
+      axios
+        .delete(`http://localhost:3000/api/placemark/${markerToDelete.id}`)
+        .then(() => {
+          setPlacemarks(placemarks.filter((placemark) => placemark.id !== markerToDelete.id));
+          message.success('Метка успешно удалена');
+          setMarkerToDelete(null);
+        })
+        .catch((error) => {
+          message.error('Произошла ошибка при удалении метки');
+        });
+      setOpen(false);
+    }
   };
 
   const handleCancel = () => {
@@ -96,14 +94,14 @@ const DemoAreaMap = () => {
               />
             ))}
             {newPlacemarksCoordinates.map((coords, index) => (
-  <Placemark id={index} key={index} geometry={coords} onContextMenu={() => startDeleteMarker(index)} />
-))}
+              <Placemark id={index} key={index} geometry={coords} onContextMenu={() => startDeleteMarker(index)} />
+            ))}
             <TypeSelector options={{ float: "right" }} />
           </Map>
         </YMaps>
       </div>
       <Modal
-        open={open}
+        visible={open}
         title="Удаление маркера"
         onOk={handleOk}
         okText='Удалить'
