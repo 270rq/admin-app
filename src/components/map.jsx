@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Popconfirm, message, Modal } from 'antd';
+import { message, Modal } from 'antd';
 import { YMaps, Map, ZoomControl, SearchControl, Placemark, TypeSelector } from '@pbe/react-yandex-maps';
 import FormDisabledDemo from './form';
 import axios from 'axios';
@@ -15,6 +15,7 @@ const DemoAreaMap = () => {
   const showModal = () => {
     setOpen(true);
   };
+  
   const handleOk = () => {
     axios
       .delete(`http://localhost:3000/api/placemark/${markerToDelete.id}`)
@@ -28,9 +29,11 @@ const DemoAreaMap = () => {
       });
     setOpen(false);
   };
+
   const handleCancel = () => {
     setOpen(false);
   };
+
   const mapState = {
     center: [55.751574, 37.573856], // Центр Москвы
     zoom: 10, // Уровень масштабирования
@@ -54,6 +57,7 @@ const DemoAreaMap = () => {
     if (date !==0){
       dateStr = `?date=${date}`
     }
+    console.log(flower);
     axios
     .get(`http://localhost:3000/api/map/flower/${flower}${dateStr}`)
     .then((response) => {
@@ -64,18 +68,23 @@ const DemoAreaMap = () => {
   const handleFormSubmit = (data) => {
     console.log(data);
     if( newPlacemarksCoordinates.length <= 0 ){
-      console.log("Лох выбери где")
+      message.warning('Выберите месторасположение аллергена!')
     }
     else {
+      console.log(data);
       axios
-        .post('http://localhost:3000/api/placemark', {
-          ...data,
-          markers: newPlacemarksCoordinates
-        })
-        .then((response) => {
-          console.log(response.data);
-          setPlacemarks([...placemarks, response.data]);
-    });
+  .post('http://localhost:3000/api/map', {
+    createdAt: new Date(),
+    date: data.RangePicker,
+    flowerId: data.TreeSelect[1],
+    cord: placemarks.map(marker => ({ x: marker.getPosition().lat(), y: marker.getPosition().lng() })),
+    lvl: data.particles,
+  })
+  .then((response) => {
+    console.log(response.data);
+    message.success('ок');
+    setPlacemarks([...placemarks, response.data]);
+  });
   }}
   const changeMarker = (flowerData) => {
     if(flowerData.length > 1)

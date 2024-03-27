@@ -5,7 +5,6 @@ import {
   ColorPicker,
   DatePicker,
   Form,
-  Checkbox,
   InputNumber,
 } from "antd";
 import axios from "axios";
@@ -45,9 +44,6 @@ const FormDisabledDemo = ({ onFormSubmit, onFlowerChange, onDateChange }) => {
     setColorLevel(color);
   };
 
-  const handleSave = (data) => {
-    onFormSubmit({ ...data, x: coords.x, y: coords.y });
-  };
 
 
   useEffect(() => {
@@ -94,7 +90,7 @@ const FormDisabledDemo = ({ onFormSubmit, onFlowerChange, onDateChange }) => {
         style={{
           maxWidth: 600,
         }}
-        onFinish={handleSave}
+        onFinish={onFormSubmit}
         onValuesChange={handleFormChange}
       >
         <Form.Item  label="Аллерген" name="TreeSelect" rules={[{ required: true, message: 'Пожалуйста, выберите аллерген!' }]}>
