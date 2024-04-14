@@ -104,9 +104,20 @@ const FormDisabledDemo = ({ onFormSubmit, onFlowerChange, onDateChange }) => {
         <Form.Item label="Период цветения" name="RangePicker"  rules={[{ required: true, message: 'Пожалуйста, выберите период цветения!' }]}>
             <DatePicker onChange={(value)=>onDateChange(value.format("YYYY-MM-DD"))} /></Form.Item>
           
-        <Form.Item label="Количество частиц" name="particles" rules={[{ required: true, message: 'Пожалуйста, выберите количество частиц!' }]}>
-          <InputNumber onChange={handleParticlesChange} />
-        </Form.Item>
+            <Form.Item
+  label="Количество частиц"
+  name="particles"
+  rules={[{ required: true, message: 'Пожалуйста, выберите количество частиц!' }]}
+>
+  <InputNumber
+    onChange={handleParticlesChange}
+    onKeyPress={(e) => {
+      if (isNaN(Number(e.key))) {
+        e.preventDefault();
+      }
+    }}
+  />
+</Form.Item>
         <Form.Item label="Уровень цветения" wrapperCol={{ span: 16 }} rules={[{ required: true, message: 'Пожалуйста, выберите уровень цветения!' }]}>
           <ColorPicker value={colorLevel} disabled />
           <div style={{ textAlign: "center", marginTop: 16 }}>

@@ -4,7 +4,6 @@ import { MenuFoldOutlined, MenuUnfoldOutlined, HomeOutlined, EnvironmentOutlined
 import DemoAreaMap from "./map";
 import Home from "./home";
 import Login from "./Login";
-import UserProfile from "./profile";
 
 const { Header, Sider, Content } = Layout;
 
@@ -29,11 +28,6 @@ const FullMenu = () => {
       key: 'map',
       icon: <EnvironmentOutlined />,
       label: 'Карта',
-    },
-    {
-      key: token ? 'userProfile' : 'login',
-      icon: token ? <UserOutlined /> : <LoginOutlined />,
-      label: token ? 'Профиль' : 'Вход',
     }
   ];
 
@@ -66,9 +60,6 @@ const FullMenu = () => {
       break;
     case 'login':
       contentComponent = <Login showButtons={showButtons} />;
-      break;
-    case 'userProfile':
-      contentComponent = <UserProfile username="Имя пользователя" handleLogout={handleLogout} />;
       break;
     default:
       contentComponent = <Home />;

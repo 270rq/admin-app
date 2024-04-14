@@ -82,8 +82,8 @@ const DemoAreaMap = () => {
   })
   .then((response) => {
     console.log(response.data);
-    message.success('ок');
     setPlacemarks([...placemarks, response.data]);
+    message.success('ок');
   });
   }}
   const changeMarker = (flowerData) => {

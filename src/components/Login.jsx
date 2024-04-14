@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Form, Input, message } from 'antd';
 import axios from 'axios';
-import UserProfile from './profile';
 
 const Login = (showButtons) => {
     const [loggedIn, setLoggedIn] = useState(false);
@@ -61,10 +60,6 @@ const Login = (showButtons) => {
         setLoggedIn(false);
         setUsername('');
     };
-
-    if (loggedIn) {
-        return <UserProfile username={username} handleLogout={handleLogout} />;
-    }
 
     return (
         <Form

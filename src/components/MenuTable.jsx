@@ -79,9 +79,6 @@ const EditableCell = ({
      )
     );
   };
-  
-   
-  
   const onChangeReg = (value) => {
    
     citys = regionsWithCitys
@@ -129,7 +126,7 @@ const EditableCell = ({
     ) : inputType === "date" ? (
       <DatePicker showTime format={"DD MM YYYY HH"} />
     ) : inputType === "createdAt" ? (
-      <DatePicker showTime format={"DD MM YYYY HH:mm:ss"} />
+      <DatePicker showTime format={"DD MM YYYY HH:mm :ss"} />
     ) : inputType === "windType" ? (
       <Select>
         {windDirectionOptions.map((option) => (
@@ -173,6 +170,7 @@ const EditableCell = ({
     </td>
   );
       }
+      
 
 const MenuTable = () => {
   const searchInput = useRef(null);
@@ -217,23 +215,30 @@ const MenuTable = () => {
   const isEditing = (record) => {
     return record && record.id === editingKey;
   };
-
+  
   const edit = (record) => {
+    // Проверяем наличие прав перед разрешением на редактирование
+    const userPermissions = localStorage.getItem("permissions");
+    if (!userPermissions || userPermissions !== "admin") {
+      message.error("У вас недостаточно прав для редактирования данных");
+      return;
+    }
+  
     form.setFieldsValue({
       ...record,
     });
     setEditingKey(record.id);
   };
-
+  
   const updateData = async (record) => {
     try {
       const id = localStorage.getItem("id");
-
+  
       const response = await axios.put(
         `http://localhost:3000/api/menu/${record.id}`,
         { ...record, createrUserId: id }
       );
-
+  
       if (response.status === 200) {
         console.log("Data updated successfully:", response.data);
         message.success("Записи изменены успешно!");
@@ -242,9 +247,6 @@ const MenuTable = () => {
       }
     } catch (error) {
       console.error("Error updating data:", error);
-      message.error(
-        "Не удалось изменить запись, возможно у вас недостаточно прав"
-      );
     }
   };
 
@@ -260,6 +262,8 @@ const MenuTable = () => {
       );
       console.log("Data deleted successfully:", response.data);
       message.success("Запись успешно удалена!");
+
+      fetchData();
     } catch (error) {
       console.error("Error deleting data:", error);
       message.error("Ошибка при удалении записи");
@@ -305,59 +309,48 @@ const MenuTable = () => {
       selectedKeys,
       confirm,
       clearFilters,
-    }) => (
-      <div
-        style={{
-          padding: 8,
-        }}
-        onKeyDown={(e) => e.stopPropagation()}
-      >
-        <Input
-          ref={searchInput}
-          placeholder={`Поиск города`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{
-            marginBottom: 8,
-            display: "block",
-          }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{
-              width: 90,
-            }}
-          >
-            Поиск
-          </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{
-              width: 90,
-            }}
-          >
-            Сброс
-          </Button>
-        </Space>
-      </div>
-    ),
+    }) => {
+      const handleReset = () => {
+        clearFilters();
+        setSelectedKeys([]);
+        confirm(); // Подтверждаем изменения, чтобы фильтр сбросился
+      };
+  
+      const handleSearch = () => {
+        confirm();
+      };
+  
+      return (
+        <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+          <Input
+            placeholder={`Поиск ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={handleSearch}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={handleSearch}
+              icon={<SearchOutlined />}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Поиск
+            </Button>
+            <Button onClick={handleReset} size="small" style={{ width: 90 }}>
+              Сброс
+            </Button>
+          </Space>
+        </div>
+      );
+    },
     filterIcon: (filtered) => (
-      <SearchOutlined
-        style={{
-          color: filtered ? "#1677ff" : undefined,
-        }}
-      />
+      <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
     ),
     onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+      record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
     onFilterDropdownOpenChange: (visible) => {
       if (visible) {
         setTimeout(() => searchInput.current?.select(), 100);
@@ -370,8 +363,8 @@ const MenuTable = () => {
       dataIndex: "createdAt",
       width: "100%",
       editable: false,
-      sorter: (a, b) => a.age - b.age,
-      createdAt: new Date().toLocaleString(),
+      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+      render: (text, record) => new Date(record.createdAt).toLocaleString(),
     },
     {
       title: "Регион",
@@ -381,6 +374,7 @@ const MenuTable = () => {
       filters: [{}],
       filterSearch: true,
       ...getColumnSearchProps("region"),
+      sorter: (a, b) => a.region.localeCompare(b.region),
     },
     {
       title: "Город",
@@ -390,27 +384,29 @@ const MenuTable = () => {
       filters: [{}],
       filterSearch: true,
       ...getColumnSearchProps("city"),
+      sorter: (a, b) => a.city.localeCompare(b.city),
     },
     {
       title: "Дата",
       dataIndex: "date",
       width: "100%",
       editable: true,
-      sorter: (a, b) => a.age - b.age,
+      sorter: (a, b) => new Date(a.date) - new Date(b.date),
+      render: (text, record) => new Date(record.date).toLocaleString(),
     },
     {
       title: "t",
       dataIndex: "temperature",
       width: "15%",
       editable: true,
-      sorter: (a, b) => a.age - b.age,
+      sorter: (a, b) => a.temperature - b.temperature,
     },
     {
       title: "Влажность",
       dataIndex: "humidity",
       width: "10%",
       editable: true,
-      sorter: (a, b) => a.age - b.age,
+      sorter: (a, b) => a.humidity - b.humidity,
     },
     {
       title: "UV",
@@ -420,34 +416,36 @@ const MenuTable = () => {
       render: (text, record) => {
         return <div>{record.uv}</div>;
       },
+      sorter: (a, b) => a.uv - b.uv,
+
     },
     {
       title: "Скорость ветра",
       dataIndex: "windSpeed",
       width: "10%",
       editable: true,
-      sorter: (a, b) => a.age - b.age,
+      sorter: (a, b) => a.windSpeed - b.windSpeed,
     },
     {
       title: "Направление ветра",
       dataIndex: "windType",
       width: "10%",
       editable: true,
-      sorter: (a, b) => a.age - b.age,
+      sorter: (a, b) => a.windType - b.windType,
     },
     {
       title: "Давление",
       dataIndex: "pressure",
       width: "10%",
       editable: true,
-      sorter: (a, b) => a.age - b.age,
+      sorter: (a, b) => a.pressure - b.pressure,
     },
     {
       title: "Тип погоды",
       dataIndex: "weatherType",
       width: "40%",
       editable: true,
-      sorter: (a, b) => a.age - b.age,
+      sorter: (a, b) => a.weatherType - b.weatherType,
     },
     {
       title: "Операции",
@@ -473,16 +471,19 @@ const MenuTable = () => {
         ) : (
           <>
             <Typography.Link
-              disabled={editingKey !== ""}
-              onClick={() => edit(record)}
-            >
-              <EditTwoTone />
+  disabled={editingKey !== ""}
+  onClick={() => {
+    edit(record);
+    updateData(record);
+  }}
+>
+  <EditTwoTone />
             </Typography.Link>
             <Popconfirm
               title="Хотите удалить?"
               onConfirm={() => handleDelete(record)}
             >
-              <DeleteTwoTone />
+              <DeleteTwoTone style={{color: 'red', marginLeft: 12}}/>
             </Popconfirm>
           </>
         );
@@ -552,6 +553,4 @@ const MenuTable = () => {
     </Form>
   );
 };
-
 export default MenuTable;
-
