@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { message, Modal } from 'antd';
+import { message, Modal, Tooltip } from 'antd';
 import { YMaps, Map, ZoomControl, SearchControl, Placemark, TypeSelector } from '@pbe/react-yandex-maps';
 import FormDisabledDemo from './form';
 import axios from 'axios';
@@ -8,9 +8,11 @@ const DemoAreaMap = () => {
   const [placemarks, setPlacemarks] = useState([]);
   const [newPlacemarksCoordinates, setNewPlacemarksCoordinates] = useState([]);
   const [markerToDelete, setMarkerToDelete] = useState(null);
-  const [flower,setFlower]= useState(0);
-  const [date,setDate]= useState(0);
+  const [flower, setFlower] = useState(0);
+  const [date, setDate] = useState(0);
   const [open, setOpen] = useState(false);
+  const [hoveredMarkerInfo, setHoveredMarkerInfo] = useState(null);
+  const [hoveredMarkerCoords, setHoveredMarkerCoords] = useState(null);
 
   const showModal = () => {
     setOpen(true);
@@ -33,6 +35,17 @@ const DemoAreaMap = () => {
   const handleCancel = () => {
     setOpen(false);
   };
+  
+  const handleMarkerMouseEnter = (e, placemark) => {
+    setHoveredMarkerInfo(placemark);
+    setHoveredMarkerCoords(e.get('coords'));
+  };
+
+  const handleMarkerMouseLeave = () => {
+    setHoveredMarkerInfo(null);
+    setHoveredMarkerCoords(null);
+  };
+
 
   const mapState = {
     center: [55.751574, 37.573856], // Центр Москвы
@@ -41,9 +54,6 @@ const DemoAreaMap = () => {
 
   const [hoveredMarker, setHoveredMarker] = useState(null);
 
-  const handleMarkerMouseEnter = (index) => {
-    setHoveredMarker(index);
-  };
 
   const handleMapContextMenu = (e) => {
       const coords = e.get('coords');
@@ -102,51 +112,59 @@ const deleteMarkerBD = (placemark)=>{
   setMarkerToDelete(placemark);
   showModal();
 }
-  return (
-    <div style={{ display: 'flex' }}>
-      <div style={{ flex: 1 }}>
+
+return (
+  <div style={{ display: 'flex' }}>
+    <div style={{ flex: 1 }}>
       <FormDisabledDemo onFormSubmit={handleFormSubmit} onFlowerChange={changeMarker} onDateChange={changeDate} />
-      </div>
-      <div style={{ flex: 1, paddingLeft: '20px', position: "relative" }}>
-        <YMaps query={{ apikey: "ed158a2d-97a9-49a1-8011-28555c611f7a" }}>
-          <Map state={mapState} width="100%" height="500px" options={{ suppressMapOpenBlock: true }} onClick={handleMapContextMenu}>
-            <ZoomControl options={{ float: 'right' }} />
-            <SearchControl options={{ float: 'left' }} />
-            {placemarks.map((placemark, index) => (
-              <Placemark
-  key={index}
-  geometry={[placemark.x, placemark.y]}
-  onContextMenu={()=>deleteMarkerBD(placemark)}
-/>
-            ))}
-            {newPlacemarksCoordinates.map((coords, index) => (
-              <Placemark id={index} key={index} geometry={coords}  onContextMenu={()=>startDeleteMarker (index)}/>
-            ))}
-
-
-<TypeSelector options={{ float: "right" }} />
-          </Map>
-        </YMaps>
-      </div>
-      <Modal
-        open={open}
-        title="Удаление маркера"
-        onOk={handleOk}
-        okText= 'Удалить'
-        cancelText= 'Отмена'
-        okType= 'danger'
-        onCancel={handleCancel}
-        footer={(_, { OkBtn, CancelBtn }) => (
-          <>
-            <CancelBtn />
-            <OkBtn />
-          </>
-        )}
-      >
-        <p>Вы уверены в своем выборе?</p>
-      </Modal>
     </div>
-  );
+    <div style={{ flex: 1, paddingLeft: '20px', position: "relative" }}>
+      <YMaps query={{ apikey: "ed158a2d-97a9-49a1-8011-28555c611f7a" }}>
+        <Map state={mapState} width="100%" height="500px" options={{ suppressMapOpenBlock: true }} onClick={handleMapContextMenu}>
+          <ZoomControl options={{ float: 'right' }} />
+          <SearchControl options={{ float: 'left' }} />
+          {placemarks.map((placemark, index) => (
+            <Placemark
+              key={index}
+              geometry={[placemark.x, placemark.y]}
+              onMouseEnter={(e) => handleMarkerMouseEnter(e, placemark)}
+              onMouseLeave={handleMarkerMouseLeave}
+              onContextMenu={()=>deleteMarkerBD(placemark)}
+            />
+          ))}
+          {newPlacemarksCoordinates.map((coords, index) => (
+            <Placemark id={index} key={index} geometry={coords} onContextMenu={()=>startDeleteMarker (index)} />
+          ))}
+          {hoveredMarkerCoords && hoveredMarkerInfo && (
+            <Tooltip title={`${hoveredMarkerInfo.name}, ${hoveredMarkerInfo.date}, Уровень цветения: ${hoveredMarkerInfo.lvl}`} placement="top" open={true} getPopupContainer={() => document.getElementById('map-container')}>
+              <div style={{ position: 'absolute', top: hoveredMarkerCoords[1], left: hoveredMarkerCoords[0], backgroundColor: 'white', padding: '5px', borderRadius: '5px', boxShadow: '0px 0px 5px 0px rgba(0,0,0,0.5)' }}>
+                {hoveredMarkerInfo.name}
+              </div>
+            </Tooltip>
+          )}
+          <TypeSelector options={{ float: "right" }} />
+        </Map>
+      </YMaps>
+    </div>
+    <Modal
+      open={open}
+      title="Удаление маркера"
+      onOk={handleOk}
+      okText='Удалить'
+      cancelText='Отмена'
+      okType='danger'
+      onCancel={handleCancel}
+      footer={(_, { OkBtn, CancelBtn }) => (
+        <>
+          <CancelBtn />
+          <OkBtn />
+        </>
+      )}
+    >
+      <p>Вы уверены в своем выборе?</p>
+    </Modal>
+  </div>
+);
 };
 
 export default DemoAreaMap;

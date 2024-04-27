@@ -22,46 +22,6 @@ import {
 import axios from "axios";
 import dayjs from "dayjs";
 
-
-const ruToEnWindType = {
-  "Север":"N",
-  "Северо-запад":"NE",
-  "Запад":"E",
-  "Юго-запад":"SE",
-  "Юг":"SW",
-  "Юго-восток":"S",
-  "Восток":"W",
-  "Северо-восток":"NW",}
-
-const windDirectionOptions = [
-  { value: "Север", emoji: "⬆️" },
-  { value: "Северо-запад", emoji: "↖️" },
-  { value: "Запад", emoji: "⬅️" },
-  { value: "Юго-запад", emoji: "↙️" },
-  { value: "Юг", emoji: "⬇️" },
-  { value: "Юго-восток", emoji: "↘️" },
-  { value: "Восток", emoji: "➡️" },
-  { value: "Северо-восток", emoji: "↗️" },
-];
-const ruToEnWeatherType ={
-  Солнечно: "Sunny",
-  Облачно: "Cloudy",
-  Дождь: "Rain",
-  Снег: "Snow",
-  Туман: "Fog",
-  Гроза: "Storm",
-  Ветренно: "Windy"
-}
-const weatherDirectionOptions = [
-  { value: "Солнечно", emoji: "☀️" },
-  { value: "Облачно", emoji: "☁️" },
-  { value: "Дождь", emoji: "🌧️" },
-  { value: "Снег", emoji: "❄️" },
-  { value: "Туман", emoji: "🌫️" },
-  { value: "Гроза", emoji: "⛈️" },
-  { value: "Ветренно", emoji: "🌬️" },
-];
-
 let regionsWithCitys = [];
 let citys = [];
 let regions = [];
@@ -91,15 +51,16 @@ const EditableCell = ({
   };
   const handleSearchCity = (value) => {
     setCitys(
-      citys.filter((city) => city.name.toLowerCase().includes(value.toLowerCase()))
+      citys.filter((city) =>
+        city.name.toLowerCase().includes(value.toLowerCase())
+      )
     );
   };
   const handleSearchReg = (value) => {
-
     setRegions(
-     regions.filter((region) =>
+      regions.filter((region) =>
         region.name.toLowerCase().includes(value.toLowerCase())
-     )
+      )
     );
   };
   const onChangeReg = (value) => {
@@ -108,12 +69,11 @@ const EditableCell = ({
     citys = regionsWithCitys
       .filter((region) => region.id === value)
       .flatMap((reg) =>
-        reg.city.map((city) =>({name:city.name, id:city.id})  )
+        reg.city.map((city) => ({ name: city.name, id: city.id }))
       );
     console.log(citys);
-      setCitys(
-        citys);
-       };
+    setCitys(citys);
+  };
   const inputNode =
     inputType === "number" ? (
       <InputNumber onKeyDown={handleKeyDown} />
@@ -142,36 +102,22 @@ const EditableCell = ({
         onChange={onChangeReg}
         notFoundContent={null}
       >
- {regionsCell.map((option) => {
-  return (
-          <Select.Option key={option.name} value={option.id}>
-          {option.name}
-          </Select.Option>
-        )})}
-
+        {regionsCell.map((option) => {
+          return (
+            <Select.Option key={option.name} value={option.id}>
+              {option.name}
+            </Select.Option>
+          );
+        })}
       </Select>
     ) : inputType === "positiveNumber" ? (
       <InputNumber onKeyDown={handleKeyDown} min={0} />
     ) : inputType === "date" ? (
-      <DatePicker showTime format={"DD MM YYYY HH"} />
+      <DatePicker format={"DD MM YYYY"} />
     ) : inputType === "createdAt" ? (
       <DatePicker showTime format={"DD MM YYYY HH:mm :ss"} />
-    ) : inputType === "windType" ? (
-      <Select>
-        {windDirectionOptions.map((option) => (
-          <Select.Option key={option.value} value={option.value}>
-            {option.emoji} {option.value}
-          </Select.Option>
-        ))}
-      </Select>
-    ) : inputType === "weatherType" ? (
-      <Select>
-        {weatherDirectionOptions.map((option) => (
-          <Select.Option key={option.value} value={option.value}>
-            {option.emoji} {option.value}
-          </Select.Option>
-        ))}
-      </Select>
+    ) : inputType === "sunrise" || "sunset" ? (
+      <DatePicker showTime format={"HH:mm :ss"} />
     ) : (
       <Input />
     );
@@ -198,10 +144,9 @@ const EditableCell = ({
       )}
     </td>
   );
-      }
-      
+};
 
-const MenuTable = () => {
+const SunTable = () => {
   const searchInput = useRef(null);
   const [form] = Form.useForm();
   const [tableData, setTableData] = useState([]);
@@ -209,15 +154,14 @@ const MenuTable = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/api/menu/getAll"
-      );
+      const response = await axios.get("http://localhost:3000/api/sun");
+      console.log(response.data);
       if (response.data) {
         setTableData(
           response.data.map((item) => ({
             ...item,
-            city: {name: item.city.name, id : item.city.id},
-            region: {name: item.city.region.name, id: item.city.region.id},
+            city: { name: item.city.name, id: item.city.id },
+            region: { name: item.city.region.name, id: item.city.region.id },
             date: dayjs(item.date),
           }))
         );
@@ -228,9 +172,12 @@ const MenuTable = () => {
       if (responseRegions.data) {
         regionsWithCitys = responseRegions.data;
         citys = regionsWithCitys.flatMap((reg) =>
-          reg.city.map((city) => ({id:city.id,name:city.name}))
+          reg.city.map((city) => ({ id: city.id, name: city.name }))
         );
-        regions = regionsWithCitys.map((reg) => ({name: reg.name,  id: reg.id}));
+        regions = regionsWithCitys.map((reg) => ({
+          name: reg.name,
+          id: reg.id,
+        }));
       }
     } catch (error) {
       console.error(error);
@@ -238,43 +185,30 @@ const MenuTable = () => {
   };
 
   useEffect(() => {
-    
-
     fetchData();
   }, []);
 
   const isEditing = (record) => {
     return record && record.id === editingKey;
   };
-  
+
   const edit = (record) => {
     // Проверяем наличие прав перед разрешением на редактирование
-    
-  
-    form.setFieldsValue({
-      ...record,
-    });
-    setEditingKey(record.id);
+
+
+    const adjustDate = (dateString) => {
+      const date = new Date(dateString);
+      return dayjs(new Date(date.getTime() + date.getTimezoneOffset() * 60000));
   };
-  
-  const updateData = async (record) => {
-    try {
-      const id = localStorage.getItem("id");
-  
-      const response = await axios.put(
-        `http://localhost:3000/api/menu/${record.id}`,
-        { ...record, createrUserId: id }
-      );
-  
-      if (response.status === 200) {
-        console.log("Data updated successfully:", response.data);
-        message.success("Записи изменены успешно!");
-      } else {
-        throw new Error("Ошибка при обновлении данных");
-      }
-    } catch (error) {
-      console.error("Error updating data:", error);
-    }
+    setEditingKey(record.id);
+    console.log(record);
+    form.setFieldsValue({
+      region: { label: record.region.name, value: record.region.id },
+      city: { label: record.city.name, value: record.city.id },
+      date: adjustDate(record.date),
+      sunrise: adjustDate(record.sunrise),
+      sunset: adjustDate(record.sunset),
+    });
   };
 
   const handleDelete = async (record) => {
@@ -282,7 +216,7 @@ const MenuTable = () => {
       const id = localStorage.getItem("id");
 
       const response = await axios.delete(
-        `http://localhost:3000/api/menu/${record.id}`,
+        `http://localhost:3000/api/sun/${record.id}`,
         {
           data: { createrUserId: id },
         }
@@ -306,7 +240,7 @@ const MenuTable = () => {
       const row = await form.validateFields();
       const newData = [...tableData];
       const index = newData.findIndex((item) => key === item.key);
-      
+
       if (index > -1) {
         console.log("update");
         const item = newData[index];
@@ -318,23 +252,37 @@ const MenuTable = () => {
         setEditingKey("");
       } else {
         console.log("add");
-        newData.push(row);
+        // newData.push(row);
         setTableData(newData);
         setEditingKey("");
       }
       console.log(row);
-      axios.post("http://localhost:3000/api/menu", {
-      createdAt: new Date(),
-      date: new Date(row.date),
-      cityId: row.city,
-      temperature: row.temperature,
-      humidity: row.humidity,
-      uv: row.uv,
-      windSpeed: row.windSpeed,
-      windType: ruToEnWindType[row.windType]|| row.windType,
-      pressure: row.pressure,
-      weatherType: ruToEnWeatherType[row.weatherType]|| row.weatherType,
-      createrUserId: Number(localStorage.getItem("id"))}).then(()=>{message.success('Успешное сохранение!')})
+
+      let date = new Date(row.date);
+      date.setMinutes(date.getMinutes() - date.getTimezoneOffset()); // Преобразование в часовой пояс UTC
+
+      let sunrise = new Date(row.sunrise);
+      sunrise.setMinutes(sunrise.getMinutes() - sunrise.getTimezoneOffset()); // Преобразование в часовой пояс UTC
+
+      let sunset = new Date(row.sunset);
+      console.log(sunset);
+      sunset.setMinutes(sunset.getMinutes() - sunset.getTimezoneOffset()); // Преобразование в часовой пояс UTC
+      const cityId = row.city.label ? row.city.value : row.city;
+
+      console.log(cityId);
+      axios
+        .post("http://localhost:3000/api/sun", {
+          createdAt: new Date(),
+          date: date,
+          cityId: cityId,
+          sunrise: sunrise,
+          sunset: sunset,
+          createrUserId: Number(localStorage.getItem("id")),
+        })
+        .then(() => {
+          message.success("Успешное сохранение!");
+          fetchData();
+        });
       console.log(row);
     } catch (errInfo) {
       console.log("Валидация провалена:", errInfo);
@@ -359,19 +307,21 @@ const MenuTable = () => {
         setSelectedKeys([]);
         confirm(); // Подтверждаем изменения, чтобы фильтр сбросился
       };
-  
+
       const handleSearch = () => {
         confirm();
       };
-  
+
       return (
         <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
           <Input
             placeholder={`Поиск ${dataIndex}`}
             value={selectedKeys[0]}
-            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
             onPressEnter={handleSearch}
-            style={{ marginBottom: 8, display: 'block' }}
+            style={{ marginBottom: 8, display: "block" }}
           />
           <Space>
             <Button
@@ -391,7 +341,7 @@ const MenuTable = () => {
       );
     },
     filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
     ),
     onFilter: (value, record) =>
       record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
@@ -404,12 +354,13 @@ const MenuTable = () => {
   const columns = [
     {
       title: "Время создания",
+
       dataIndex: "createdAt",
       width: "100%",
       editable: false,
-      sorter: (a, b) => new Date(a.createdAt) - 
-      new Date(b.createdAt),
-      render: (text, record) => new Date(record.createdAt).toLocaleString(),
+      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+      render: (text, record) =>
+        record.createdAt ? new Date(record.createdAt).toLocaleString() : "",
     },
     {
       title: "Регион",
@@ -420,12 +371,14 @@ const MenuTable = () => {
       filterSearch: true,
       ...getColumnSearchProps("region"),
       sorter: (a, b) => a.region.name.localeCompare(b.region.name),
-      render: (text,record) => {
-        if (record.region){
-          return typeof record.region === "number"? regionsWithCitys.find((reg)=> reg.id === record.region).name: record.region.name;
+      render: (text, record) => {
+        if (record.region) {
+          return typeof record.region === "number"
+            ? regionsWithCitys.find((reg) => reg.id === record.region).name
+            : record.region.name;
         }
-        return ""
-      }
+        return "";
+      },
     },
     {
       title: "Город",
@@ -436,13 +389,14 @@ const MenuTable = () => {
       filterSearch: true,
       ...getColumnSearchProps("city"),
       sorter: (a, b) => a.city.name.localeCompare(b.city.name),
-      render: (text,record) => {
-        if (record.city){
-
-          return typeof record.city === "number"? citys.find((city)=> city.id === record.city).name: record.city.name;
+      render: (text, record) => {
+        if (record.city) {
+          return typeof record.city === "number"
+            ? citys.find((city) => city.id === record.city).name
+            : record.city.name;
         }
-        return ""
-      }
+        return "";
+      },
     },
     {
       title: "Дата",
@@ -450,60 +404,42 @@ const MenuTable = () => {
       width: "100%",
       editable: true,
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      render: (text, record) => new Date(record.date).toLocaleString(),
+      render: (text, record) =>
+        record.date
+          ? `${new Date(record.date).toISOString().split("T")[0]}`
+          : "",
     },
     {
-      title: "t",
-      dataIndex: "temperature",
-      width: "15%",
+      title: "Восход",
+      dataIndex: "sunrise",
+      width: "100%",
       editable: true,
-      sorter: (a, b) => a.temperature - b.temperature,
+      sorter: (a, b) => new Date(a.sunrise) - new Date(b.sunrise),
+      render: (text, record) =>
+        record.sunrise
+          ? new Date(record.sunrise).toLocaleString("en-US", {
+              hour12: false,
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "UTC",
+            })
+          : "",
     },
     {
-      title: "Влажность",
-      dataIndex: "humidity",
-      width: "10%",
+      title: "Заход",
+      dataIndex: "sunset",
+      width: "100%",
       editable: true,
-      sorter: (a, b) => a.humidity - b.humidity,
-    },
-    {
-      title: "UV",
-      dataIndex: "uv",
-      width: "10%",
-      editable: true,
-      render: (text, record) => {
-        return <div>{record.uv}</div>;
-      },
-      sorter: (a, b) => a.uv - b.uv,
-
-    },
-    {
-      title: "Скорость ветра",
-      dataIndex: "windSpeed",
-      width: "10%",
-      editable: true,
-      sorter: (a, b) => a.windSpeed - b.windSpeed,
-    },
-    {
-      title: "Направление ветра",
-      dataIndex: "windType",
-      width: "10%",
-      editable: true,
-      sorter: (a, b) => a.windType - b.windType,
-    },
-    {
-      title: "Давление",
-      dataIndex: "pressure",
-      width: "10%",
-      editable: true,
-      sorter: (a, b) => a.pressure - b.pressure,
-    },
-    {
-      title: "Тип погоды",
-      dataIndex: "weatherType",
-      width: "40%",
-      editable: true,
-      sorter: (a, b) => a.weatherType - b.weatherType,
+      sorter: (a, b) => new Date(a.sunset) - new Date(b.sunset),
+      render: (text, record) =>
+        record.sunset
+          ? new Date(record.sunset).toLocaleString("en-US", {
+              hour12: false,
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "UTC",
+            })
+          : "",
     },
     {
       title: "Операции",
@@ -529,18 +465,18 @@ const MenuTable = () => {
         ) : (
           <>
             <Typography.Link
-  disabled={editingKey !== ""}
-  onClick={() => {
-    edit(record);
-  }}
->
-  <EditTwoTone />
+              disabled={editingKey !== ""}
+              onClick={() => {
+                edit(record);
+              }}
+            >
+              <EditTwoTone />
             </Typography.Link>
             <Popconfirm
               title="Хотите удалить?"
               onConfirm={() => handleDelete(record)}
             >
-              <DeleteTwoTone style={{color: 'red', marginLeft: 12}}/>
+              <DeleteTwoTone style={{ color: "red", marginLeft: 12 }} />
             </Popconfirm>
           </>
         );
@@ -559,20 +495,12 @@ const MenuTable = () => {
         inputType: (() => {
           if (col.dataIndex === "date") {
             return "date";
-          }else if (col.dataIndex === 'createdAt'){
-            return 'createdAt';
+          } else if (col.dataIndex === "createdAt") {
+            return "createdAt";
           } else if (col.dataIndex === "city") {
             return "city";
           } else if (col.dataIndex === "region") {
             return "region";
-          } else if (col.dataIndex === "temperature") {
-            return "number";
-          } else if (col.dataIndex === "windType") {
-            return "windType";
-          } else if (col.dataIndex === "weatherType") {
-            return "weatherType";
-          } else {
-            return "positiveNumber";
           }
         })(),
         dataIndex: col.dataIndex,
@@ -610,4 +538,4 @@ const MenuTable = () => {
     </Form>
   );
 };
-export default MenuTable;
+export default SunTable;

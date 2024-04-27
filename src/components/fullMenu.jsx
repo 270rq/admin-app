@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, theme } from 'antd';
-import { MenuFoldOutlined, MenuUnfoldOutlined, HomeOutlined, EnvironmentOutlined, LoginOutlined, UserOutlined } from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined, HomeOutlined, EnvironmentOutlined, SunOutlined } from '@ant-design/icons';
 import DemoAreaMap from "./map";
 import Home from "./home";
 import Login from "./Login";
+import SunTable from './SunTable';
 
 const { Header, Sider, Content } = Layout;
 
@@ -23,6 +24,10 @@ const FullMenu = () => {
       key: 'home',
       icon: <HomeOutlined />,
       label: 'Погода',
+    }, {
+      key: 'sun',
+      icon: <SunOutlined />,
+      label: 'Солнечный цикл',
     },
     {
       key: 'map',
@@ -55,6 +60,9 @@ const FullMenu = () => {
     case 'home':
       contentComponent = <Home />;
       break;
+      case 'sun':
+        contentComponent = <SunTable />;
+        break;
     case 'map':
       contentComponent = <DemoAreaMap />;
       break;
