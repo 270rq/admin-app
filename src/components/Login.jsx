@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Form, Input, message } from 'antd';
 import axios from 'axios';
 
-const Login = (showButtons) => {
+const Login = ({showButtons}) => {
     const [loggedIn, setLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
 
@@ -48,6 +48,7 @@ const Login = (showButtons) => {
         setUsername(username);
         setLoggedIn(true);
         message.success('Вход выполнен успешно!');
+        showButtons();
     };
 
     const handleLoginError = () => {

@@ -136,7 +136,8 @@ return (
             <Placemark id={index} key={index} geometry={coords} onContextMenu={()=>startDeleteMarker (index)} />
           ))}
           {hoveredMarkerCoords && hoveredMarkerInfo && (
-            <Tooltip title={`${hoveredMarkerInfo.name}, ${hoveredMarkerInfo.date}, Уровень цветения: ${hoveredMarkerInfo.lvl}`} placement="top" open={true} getPopupContainer={() => document.getElementById('map-container')}>
+            <Tooltip title={`${new Date(hoveredMarkerInfo.date).toLocaleString('ru-RU')}, Уровень цветения: ${hoveredMarkerInfo.lvl}`} 
+            placement="top" open={true} getPopupContainer={() => document.getElementById('map-container')}>
               <div style={{ position: 'absolute', top: hoveredMarkerCoords[1], left: hoveredMarkerCoords[0], backgroundColor: 'white', padding: '5px', borderRadius: '5px', boxShadow: '0px 0px 5px 0px rgba(0,0,0,0.5)' }}>
                 {hoveredMarkerInfo.name}
               </div>

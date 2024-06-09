@@ -36,6 +36,10 @@ const FullMenu = () => {
     }
   ];
 
+  useEffect(() => {
+    setVisibleButtons(!!token);
+  }, [token]);
+
   const toggleMenu = () => {
     setCollapsed(!collapsed);
   };
@@ -53,6 +57,7 @@ const FullMenu = () => {
 
   const showButtons = () => {
     setVisibleButtons(true);
+    setToken(localStorage.getItem('token'))
   };
 
   let contentComponent;
@@ -67,7 +72,7 @@ const FullMenu = () => {
       contentComponent = <DemoAreaMap />;
       break;
     case 'login':
-      contentComponent = <Login showButtons={showButtons} />;
+      contentComponent = <Login showButtons={showButtons} />
       break;
     default:
       contentComponent = <Home />;
