@@ -455,7 +455,7 @@ const MenuTable = () => {
     {
       title: "t",
       dataIndex: "temperature",
-      width: "15%",
+      width: "10%",
       editable: true,
       sorter: (a, b) => a.temperature - b.temperature,
     },
