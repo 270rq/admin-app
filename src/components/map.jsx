@@ -49,11 +49,8 @@ const DemoAreaMap = () => {
 
   const mapState = {
     center: [55.751574, 37.573856], // Центр Москвы
-    zoom: 10, // Уровень масштабирования
+    zoom: 10,
   };
-
-  const [hoveredMarker, setHoveredMarker] = useState(null);
-
 
   const handleMapContextMenu = (e) => {
       const coords = e.get('coords');
@@ -114,13 +111,13 @@ const deleteMarkerBD = (placemark)=>{
 }
 
 return (
-  <div style={{ display: 'flex' }}>
-    <div style={{ flex: 1 }}>
-      <FormDisabledDemo onFormSubmit={handleFormSubmit} onFlowerChange={changeMarker} onDateChange={changeDate} />
-    </div>
-    <div style={{ flex: 1, paddingLeft: '20px', position: "relative" }}>
+  <div style={{ display: 'flex',  justifyContent: 'center' }}>
+  <div style={{ flex: 1, width: '500px', maxWidth: '700px', margin: '0 auto' }}>
+    <FormDisabledDemo onFormSubmit={handleFormSubmit} onFlowerChange={changeMarker} onDateChange={changeDate} />
+  </div>
+    <div style={{ flex: 1, maxWidth: '800px', paddingLeft: '20px', position: "relative" }}>
       <YMaps query={{ apikey: "ed158a2d-97a9-49a1-8011-28555c611f7a" }}>
-        <Map state={mapState} width="100%" height="500px" options={{ suppressMapOpenBlock: true }} onClick={handleMapContextMenu}>
+        <Map state={mapState} width="700px" height="500px" options={{ suppressMapOpenBlock: true }} onClick={handleMapContextMenu}>
           <ZoomControl options={{ float: 'right' }} />
           <SearchControl options={{ float: 'left' }} />
           {placemarks.map((placemark, index) => (
