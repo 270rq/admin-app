@@ -48,6 +48,7 @@ const Login = ({showButtons}) => {
         setUsername(username);
         setLoggedIn(true);
         message.success('Вход выполнен успешно!');
+        console.log(    showButtons)
         showButtons();
     };
 

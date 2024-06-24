@@ -84,6 +84,7 @@ const DemoAreaMap = () => {
     createdAt: new Date(),
     date: data.RangePicker,
     flowerId: data.TreeSelect[1],
+    createrUserId: localStorage.getItem("id"),
     cord: placemarks.map(marker => ({ x: marker.getPosition().lat(), y: marker.getPosition().lng() })),
     lvl: data.particles,
   })

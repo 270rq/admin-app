@@ -73,7 +73,7 @@ const FullMenu = () => {
       contentComponent = <DemoAreaMap />;
       break;
     case 'login':
-      contentComponent = <Login setToken={handleLoginSuccess} setSelectedMenuItem={setSelectedMenuItem} />
+      contentComponent = <Login setToken={handleLoginSuccess} setSelectedMenuItem={setSelectedMenuItem} showButtons={()=>{setToken(localStorage.getItem('token'))}} />
       break;
     default:
       contentComponent = <Home />;
