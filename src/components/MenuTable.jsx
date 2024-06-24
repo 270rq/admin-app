@@ -393,8 +393,13 @@ const MenuTable = () => {
     filterIcon: (filtered) => (
       <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
     ),
-    onFilter: (value, record) =>
-      record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+    onFilter: (value, record) =>{
+      if (dataIndex.toLowerCase()==='city'||dataIndex.toLowerCase()==='region'){
+      return record[dataIndex]?.name.toString().toLowerCase().includes(value.toLowerCase())
+        
+      }
+      
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase())},
     onFilterDropdownOpenChange: (visible) => {
       if (visible) {
         setTimeout(() => searchInput.current?.select(), 100);
@@ -407,9 +412,12 @@ const MenuTable = () => {
       dataIndex: "createdAt",
       width: "100%",
       editable: false,
-      sorter: (a, b) => new Date(a.createdAt) - 
-      new Date(b.createdAt),
-      render: (text, record) => new Date(record.createdAt).toLocaleString(),
+      sorter: (a, b) => {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      },
+      render: (text, record) => {
+        return new Date(record.createdAt).toLocaleString();
+      },
     },
     {
       title: "Регион",

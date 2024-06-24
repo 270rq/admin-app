@@ -4,13 +4,18 @@ import FullMenu from "./components/fullMenu";
 
 function App() {
   return (
-      <ConfigProvider
-        theme={{
-          algorithm: theme.darkAlgorithm,
-        }}
-      >
-        <FullMenu></FullMenu>
-      </ConfigProvider>
+    <ConfigProvider
+    theme={{
+      token: {
+        colorPrimary: '#00b96b',
+        borderRadius: 5,
+      },
+    }}
+  >
+    <div className="App">
+      <FullMenu></FullMenu>
+    </div>
+  </ConfigProvider>
 
   );
 }

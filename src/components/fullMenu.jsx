@@ -100,11 +100,11 @@ const FullMenu = () => {
           type="text"
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           onClick={toggleMenu}
-          style={{ fontSize: '16px', width: 64, height: 64 }}
+          style={{ fontSize: '16px', width: 64, height: 64, color: 'white' }}
         />
       )}
       {token && (
-        <Button type="text" onClick={handleLogout}>
+        <Button type="primary" onClick={handleLogout}>
           Выйти
         </Button>
       )}
@@ -116,6 +116,8 @@ const FullMenu = () => {
         background: colorBgContainer,
         borderRadius: borderRadiusLG,
         display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
       {contentComponent}
