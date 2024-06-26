@@ -75,7 +75,7 @@ const Login = ({showButtons}) => {
             autoComplete="off"
         >
             <Form.Item
-                label="Username"
+                label="Логин"
                 name="username"
                 rules={[{ required: true, message: 'Пожалуйста, введите ваше имя!' }]}
             >
@@ -83,7 +83,7 @@ const Login = ({showButtons}) => {
             </Form.Item>
 
             <Form.Item
-                label="Password"
+                label="Пароль"
                 name="password"
                 rules={[{ required: true, message: 'Пожалуйста, введите ваш пароль!' }]}
             >

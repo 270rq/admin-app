@@ -410,7 +410,6 @@ const MenuTable = () => {
     {
       title: "Время создания",
       dataIndex: "createdAt",
-      width: "100%",
       editable: false,
       sorter: (a, b) => {
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
@@ -422,7 +421,6 @@ const MenuTable = () => {
     {
       title: "Регион",
       dataIndex: "region",
-      width: "25%",
       editable: true,
       filters: [{}],
       filterSearch: true,
@@ -438,7 +436,6 @@ const MenuTable = () => {
     {
       title: "Город",
       dataIndex: "city",
-      width: "25%",
       editable: true,
       filters: [{}],
       filterSearch: true,
@@ -455,7 +452,6 @@ const MenuTable = () => {
     {
       title: "Дата",
       dataIndex: "date",
-      width: "100%",
       editable: true,
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
       render: (text, record) => new Date(record.date).toLocaleString(),
@@ -463,21 +459,18 @@ const MenuTable = () => {
     {
       title: "t",
       dataIndex: "temperature",
-      width: "10%",
       editable: true,
       sorter: (a, b) => a.temperature - b.temperature,
     },
     {
       title: "Влажность",
       dataIndex: "humidity",
-      width: "10%",
       editable: true,
       sorter: (a, b) => a.humidity - b.humidity,
     },
     {
       title: "UV",
       dataIndex: "uv",
-      width: "10%",
       editable: true,
       render: (text, record) => {
         return <div>{record.uv}</div>;
@@ -488,28 +481,24 @@ const MenuTable = () => {
     {
       title: "Скорость ветра",
       dataIndex: "windSpeed",
-      width: "10%",
       editable: true,
       sorter: (a, b) => a.windSpeed - b.windSpeed,
     },
     {
       title: "Направление ветра",
       dataIndex: "windType",
-      width: "10%",
       editable: true,
       sorter: (a, b) => a.windType - b.windType,
     },
     {
       title: "Давление",
       dataIndex: "pressure",
-      width: "10%",
       editable: true,
       sorter: (a, b) => a.pressure - b.pressure,
     },
     {
       title: "Тип погоды",
       dataIndex: "weatherType",
-      width: "40%",
       editable: true,
       sorter: (a, b) => a.weatherType - b.weatherType,
     },

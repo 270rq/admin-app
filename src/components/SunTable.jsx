@@ -11,6 +11,7 @@ import {
   DatePicker,
   Select,
   message,
+  TimePicker,
 } from "antd";
 import {
   EditTwoTone,
@@ -115,9 +116,9 @@ const EditableCell = ({
     ) : inputType === "date" ? (
       <DatePicker format={"DD MM YYYY"} />
     ) : inputType === "createdAt" ? (
-      <DatePicker showTime format={"DD MM YYYY HH:mm :ss"} />
+      <DatePicker showTime format={"DD MM YYYY HH:mm:ss"} />
     ) : inputType === "sunrise" || "sunset" ? (
-      <DatePicker showTime format={"HH:mm :ss"} />
+      <TimePicker showTime format={"HH:mm:ss"} />
     ) : (
       <Input />
     );
@@ -193,8 +194,6 @@ const SunTable = () => {
   };
 
   const edit = (record) => {
-    // Проверяем наличие прав перед разрешением на редактирование
-
 
     const adjustDate = (dateString) => {
       const date = new Date(dateString);
@@ -341,7 +340,7 @@ const SunTable = () => {
       );
     },
     filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+      <SearchOutlined style={{ color: filtered ? "#4EFF18" : undefined }} />
     ),
     onFilter: (value, record) =>
       record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
@@ -354,9 +353,7 @@ const SunTable = () => {
   const columns = [
     {
       title: "Время создания",
-
       dataIndex: "createdAt",
-      width: "100%",
       editable: false,
       sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
       render: (text, record) =>
@@ -365,7 +362,6 @@ const SunTable = () => {
     {
       title: "Регион",
       dataIndex: "region",
-      width: "25%",
       editable: true,
       filters: [{}],
       filterSearch: true,
@@ -383,7 +379,6 @@ const SunTable = () => {
     {
       title: "Город",
       dataIndex: "city",
-      width: "25%",
       editable: true,
       filters: [{}],
       filterSearch: true,
@@ -401,7 +396,6 @@ const SunTable = () => {
     {
       title: "Дата",
       dataIndex: "date",
-      width: "100%",
       editable: true,
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
       render: (text, record) =>
@@ -412,7 +406,6 @@ const SunTable = () => {
     {
       title: "Восход",
       dataIndex: "sunrise",
-      width: "100%",
       editable: true,
       sorter: (a, b) => new Date(a.sunrise) - new Date(b.sunrise),
       render: (text, record) =>
@@ -428,7 +421,6 @@ const SunTable = () => {
     {
       title: "Заход",
       dataIndex: "sunset",
-      width: "100%",
       editable: true,
       sorter: (a, b) => new Date(a.sunset) - new Date(b.sunset),
       render: (text, record) =>

@@ -1,7 +1,7 @@
 {
   "name": "admin-app",
   "productName": "admin-app",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
   "scripts": {
